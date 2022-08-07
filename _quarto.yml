@@ -1,0 +1,35 @@
+project:
+  type: website
+  output-dir: _site
+  preview: 
+    browser: true
+
+website:
+  twitter-card:
+    creator: "@Sivu_Nzimeni"
+    site: "sivuyilenzimeni.netlify.app"
+  title: "Sivuyile Nzimeni"
+  navbar:
+    background: "#0f204b"
+    right:
+      - about.qmd
+      - icon: "twitter"
+        href: "https://twitter.com/Sivu_Nzimeni"
+      - icon: "github"
+        href: "https://github.com/SivuyileNzimeni"
+      - icon: "linkedin"
+        href: "https://za.linkedin.com/in/sivuyile-nzimeni-98006ba0"
+format:
+  html:
+    code-overflow: wrap
+    code-copy: true
+    code-fold: true
+    code-summary: "see code"
+    code-line-numbers: true
+    theme:
+      light: materia
+      dark: darkly
+    toc: true
+
+editor: visual
+
