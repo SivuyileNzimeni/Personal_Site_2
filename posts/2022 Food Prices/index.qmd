@@ -1,0 +1,49 @@
+---
+title: "2022 Food Prices: Part 1"
+image: "./Food_Basket.jpg"
+author: "Sivuyile Nzimeni"
+date: "June 4, 2022"
+description: "This explores 2020 - 2022 Food Prices in South Africa"
+categories: [news, API, table]
+listing: 
+  contents: posts
+execute: 
+  echo: false
+  warning: false
+---
+
+```{r set-up,include=FALSE}
+#| echo: false
+#| message: false
+#| warning: false
+
+library(tidyverse)
+library(janitor)
+library(reactable)
+library(reactablefmtr)
+```
+
+Recently, South Africa has been experiencing notable [food price increases](https://theconversation.com/rising-food-prices-hit-poor-people-the-hardest-a-close-look-at-inflation-in-south-africa-184465#:~:text=South%20Africa's%20overall%20rate%20of,2%25%20over%20the%20same%20period.). Data collection to ascertain day-to-day, month-on-month etc. changes can be tedious and costly. Fortunately, there are several South African entities attempting to collect, store and report on food prices in South Africa. Track prices as excellently as the team responsible for the [Trundler API](https://sivuyilenzimeni.netlify.app/'https://www.trundler.dev/'). They track product prices across a myriad of retailers.
+
+In order to track food price changes for the period 2020 - 2022, we pulled prices for six food categories:
+
+1.  Eggs
+
+2.  Milk
+
+3.  Maize
+
+4.  Rice
+
+5.  Sunflower Oil
+
+6.  White Sugar
+
+Using the Trundler API, we narrowed the product search to a handful of competing products in two large South African Retailers. As a result, we don\'t share the data extraction process in this post to protect the data extracted and API keys associated with them.
+
+The table below provides an overview of food prices for the period 2020 - 2022.
+
+```{r}
+#| label: "Table 1 Price Changes in the past two years." 
+Table_1 <- readRDS("./2022_Food_Table_2022-06-05.rds")
+```

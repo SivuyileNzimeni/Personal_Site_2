@@ -1,0 +1,1776 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.0.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Sivuyile Nzimeni">
+<meta name="dcterms.date" content="2021-12-25">
+<meta name="description" content="This post is about the 2021 Ask A Manager Survey analysis. It provides an overview of the data analysis process attempting to fit a linear regression model to explain variances in reported salaries among the respondents">
+
+<title>Sivuyile Nzimeni - Ask A Manager Survey</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-listing/list.min.js"></script>
+<script src="../../site_libs/quarto-listing/quarto-listing.js"></script>
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+<script>
+
+  window.document.addEventListener("DOMContentLoaded", function (_event) {
+    const listingTargetEl = window.document.querySelector('#listing-listing .list');
+    if (!listingTargetEl) {
+      // No listing discovered, do not attach.
+      return; 
+    }
+
+    const options = {
+      valueNames: [{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
+      
+      searchColumns: [],
+    };
+
+    window['quarto-listings'] = window['quarto-listings'] || {};
+    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
+
+    if (window['quarto-listing-loaded']) {
+      window['quarto-listing-loaded']();
+    }
+  });
+
+  window.addEventListener('hashchange',() => {
+    if (window['quarto-listing-loaded']) {
+      window['quarto-listing-loaded']();
+    }
+  })
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<meta name="twitter:title" content="Sivuyile Nzimeni - Ask A Manager Survey">
+<meta name="twitter:description" content="This post is about the 2021 Ask A Manager Survey analysis. It provides an overview of the data analysis process attempting to fit a linear regression model to explain variances in reported salaries among the respondents">
+<meta name="twitter:image" content="./Ask_A_Manager_Logo.png">
+<meta name="twitter:creator" content="@Sivu_Nzimeni">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Sivuyile Nzimeni</span>
+  </a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html">About</a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com/Sivu_Nzimeni"><i class="bi bi-twitter" role="img">
+</i> 
+ </a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/SivuyileNzimeni"><i class="bi bi-github" role="img">
+</i> 
+ </a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://za.linkedin.com/in/sivuyile-nzimeni-98006ba0"><i class="bi bi-linkedin" role="img">
+</i> 
+ </a>
+  </li>  
+</ul>
+              <div class="quarto-toggle-container">
+                  <a href="" class="quarto-color-scheme-toggle nav-link" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+              </div>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Ask A Manager Survey</h1>
+                  <div>
+        <div class="description">
+          <p>This post is about the 2021 Ask A Manager Survey analysis. It provides an overview of the data analysis process attempting to fit a linear regression model to explain variances in reported salaries among the respondents</p>
+        </div>
+      </div>
+                          <div class="quarto-categories">
+                <div class="quarto-category">data analysis</div>
+                <div class="quarto-category">data modelling</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Sivuyile Nzimeni </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">December 25, 2021</p>
+      </div>
+    </div>
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">INTRODUCTION</a>
+  <ul class="collapse">
+  <li><a href="#reproducibility" id="toc-reproducibility" class="nav-link" data-scroll-target="#reproducibility">REPRODUCIBILITY</a></li>
+  <li><a href="#out-of-sample-testing" id="toc-out-of-sample-testing" class="nav-link" data-scroll-target="#out-of-sample-testing">OUT OF SAMPLE TESTING</a></li>
+  </ul></li>
+  <li><a href="#lasso-regression" id="toc-lasso-regression" class="nav-link" data-scroll-target="#lasso-regression">LASSO REGRESSION</a>
+  <ul class="collapse">
+  <li><a href="#important-variable-extraction" id="toc-important-variable-extraction" class="nav-link" data-scroll-target="#important-variable-extraction">IMPORTANT VARIABLE EXTRACTION</a></li>
+  <li><a href="#tidymodels-a-clean-interface-for-maching-learning" id="toc-tidymodels-a-clean-interface-for-maching-learning" class="nav-link" data-scroll-target="#tidymodels-a-clean-interface-for-maching-learning">TIDYMODELS: A CLEAN INTERFACE FOR MACHING LEARNING</a></li>
+  </ul></li>
+  <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">RESULTS</a>
+  <ul class="collapse">
+  <li><a href="#training-dataset" id="toc-training-dataset" class="nav-link" data-scroll-target="#training-dataset">Training Dataset</a></li>
+  <li><a href="#test-dataset" id="toc-test-dataset" class="nav-link" data-scroll-target="#test-dataset">Test Dataset</a></li>
+  </ul></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">CONCLUSION</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">REFERENCES</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+<section id="introduction" class="level1">
+<h1>INTRODUCTION</h1>
+<p>In early 2021, the <a href="https://www.askamanager.org/">Ask A Manager</a> blogsite ran their annual <a href="https://www.askamanager.org/2021/05/look-at-24000-peoples-real-life-salaries.html">salary survey</a>. The survey responses are stored on googlesheets, making the data accessible to all interested. In a <a href="https://www.linkedin.com/pulse/2021-ask-manager-salary-survey-sivuyile-nzimeni/">previous post</a>, we discussed data pre-processing and feature selection method. This post focuses two aspects,namely, 1) Reproducibility and 2) Out-of-Sample Testing.</p>
+<section id="reproducibility" class="level2">
+<h2 class="anchored" data-anchor-id="reproducibility">REPRODUCIBILITY</h2>
+<p>In the previous post, we detailed the feature selection method by regularised regreesion, specifically, LASSO regression. In this post, we will attempt to reproduce the feature selection method.</p>
+</section>
+<section id="out-of-sample-testing" class="level2">
+<h2 class="anchored" data-anchor-id="out-of-sample-testing">OUT OF SAMPLE TESTING</h2>
+<p>In this post, we will also follow the traditional machine learning workflow including, splitting the data into a training and testing samples, fitting a model, cross-validation and finally fitting the model on the out-of-sample dataset(testing dataset). This approach can inform us about the model’s parsimony. In other words, can the model perform well on an unknown sample.</p>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+</section>
+</section>
+<section id="lasso-regression" class="level1">
+<h1>LASSO REGRESSION</h1>
+<p>As mentioned above, the data cleaning process was detailed on an earlier post. It is worth highlighting that the dataset contained several dummy variables indicating various respondent attributes such as job_title, industry, city, age group etc. Our dependent variable is the annual salary. Given the large number of independent variables. In the code below, we fit a LASSO regression model.</p>
+<div class="cell">
+<details>
+<summary>see code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>X <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(new_annual_salary <span class="sc">~</span>.,Salary_Train)[,<span class="sc">-</span><span class="dv">1</span>]</span>
+<span id="cb1-2"><a href="#cb1-2"></a>Y <span class="ot">&lt;-</span> <span class="fu">log</span>(Salary_Train<span class="sc">$</span>new_annual_salary)</span>
+<span id="cb1-3"><a href="#cb1-3"></a></span>
+<span id="cb1-4"><a href="#cb1-4"></a>lasso <span class="ot">&lt;-</span> <span class="fu">glmnet</span>(<span class="at">x=</span>X,</span>
+<span id="cb1-5"><a href="#cb1-5"></a>       <span class="at">y=</span> Y,</span>
+<span id="cb1-6"><a href="#cb1-6"></a>       <span class="at">alpha =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<section id="important-variable-extraction" class="level2">
+<h2 class="anchored" data-anchor-id="important-variable-extraction">IMPORTANT VARIABLE EXTRACTION</h2>
+<p>The resulting object is a list of class “glmnet”. Essentially, the results contain all the iterations through alpha and to find the minimum lambda. As such, there are several results in the object. We are primarily interested in extracting the remaining variables at minimum lambda along with their coeffiecients. The <a href="https://cran.r-project.org/web/packages/vip/vip.pdf">vip package</a> can automate the plotting of the results. However, we want to extract the variables names in order to fit them on our training test. There is probably a package to assist with this step somewhere in the wild, however, we haven’t found it yet. Luckily in R, we can write custom functions. The code below details the variable_extractor function.</p>
+<div class="cell">
+<details>
+<summary>see code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>variable_extractor <span class="ot">&lt;-</span> <span class="cf">function</span>(a_list){</span>
+<span id="cb2-2"><a href="#cb2-2"></a>  min_lambda <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">best_lambda =</span>a_list[[<span class="st">"lambda"</span>]]<span class="sc">==</span><span class="fu">min</span>(a_list[[<span class="st">"lambda"</span>]]))</span>
+<span id="cb2-3"><a href="#cb2-3"></a>  min_lambda <span class="ot">&lt;-</span> <span class="fu">cbind.data.frame</span>(<span class="fu">data.frame</span>(<span class="at">index =</span> <span class="fu">rownames</span>(min_lambda)),</span>
+<span id="cb2-4"><a href="#cb2-4"></a>                                 min_lambda)</span>
+<span id="cb2-5"><a href="#cb2-5"></a>  min_lambda <span class="ot">&lt;-</span> min_lambda <span class="sc">%&gt;%</span> </span>
+<span id="cb2-6"><a href="#cb2-6"></a>    <span class="fu">filter</span>(best_lambda <span class="sc">==</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-7"><a href="#cb2-7"></a>  min_lambda <span class="ot">&lt;-</span> <span class="fu">as.double</span>(<span class="fu">unique</span>(min_lambda<span class="sc">$</span>index))</span>
+<span id="cb2-8"><a href="#cb2-8"></a>  lasso_variables <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(<span class="fu">coef</span>(a_list))<span class="sc">|&gt;</span><span class="fu">data.frame</span>()</span>
+<span id="cb2-9"><a href="#cb2-9"></a>  lasso_variables <span class="ot">&lt;-</span> <span class="fu">cbind.data.frame</span>(<span class="at">variables =</span> <span class="fu">rownames</span>(lasso_variables),</span>
+<span id="cb2-10"><a href="#cb2-10"></a>                                      lasso_variables)</span>
+<span id="cb2-11"><a href="#cb2-11"></a>  lasso_variables <span class="ot">&lt;-</span> <span class="fu">tibble</span>(lasso_variables)</span>
+<span id="cb2-12"><a href="#cb2-12"></a>  lasso_variables <span class="ot">&lt;-</span> lasso_variables[,<span class="fu">c</span>(<span class="dv">1</span>,min_lambda<span class="sc">+</span><span class="dv">1</span>)]</span>
+<span id="cb2-13"><a href="#cb2-13"></a>  <span class="fu">names</span>(lasso_variables) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"variable"</span>,<span class="st">"importance"</span>)</span>
+<span id="cb2-14"><a href="#cb2-14"></a>  lasso_variables <span class="ot">&lt;-</span> lasso_variables <span class="sc">%&gt;%</span> </span>
+<span id="cb2-15"><a href="#cb2-15"></a>    <span class="fu">filter</span>(variable <span class="sc">!=</span> <span class="st">"(Intercept)"</span>,</span>
+<span id="cb2-16"><a href="#cb2-16"></a>           importance <span class="sc">!=</span> <span class="fl">0.00000000</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-17"><a href="#cb2-17"></a>    <span class="fu">arrange</span>(<span class="fu">desc</span>(importance))</span>
+<span id="cb2-18"><a href="#cb2-18"></a></span>
+<span id="cb2-19"><a href="#cb2-19"></a>  <span class="fu">return</span>(lasso_variables)</span>
+<span id="cb2-20"><a href="#cb2-20"></a>}</span>
+<span id="cb2-21"><a href="#cb2-21"></a></span>
+<span id="cb2-22"><a href="#cb2-22"></a>lasso_variable <span class="ot">&lt;-</span> <span class="fu">variable_extractor</span>(lasso)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>The function takes a list of attribute “glmnet”. Thereafter, we find the smallest lambda. In addition, we extract all the coefficients from the object and store them as a wide dataframe. The dataframe is subset to only contain the variable name along with the coefficients of the smallest lambda value. We discard the intercept and variable with coefficients that are equal to 0.0000000. The final output is identical to the variables extracted by the vip package. Finally, we subset both the training dataset and the testing dataset to only contain the selected independent variables. Since the outcome variable is expressed in USD terms, we log the outcome variable.</p>
+<div class="cell">
+
+</div>
+</section>
+<section id="tidymodels-a-clean-interface-for-maching-learning" class="level2">
+<h2 class="anchored" data-anchor-id="tidymodels-a-clean-interface-for-maching-learning">TIDYMODELS: A CLEAN INTERFACE FOR MACHING LEARNING</h2>
+<p>The R programming language doesn’t not lack methods for running machine learning algorithms, it is after all, a statistical programming language. The <a href="https://www.tidymodels.org/">tidymodels metapackage</a> aims to provide a standard interface for modelling and machine learning using tidyverse principles. Below, we use the package to complete a number of steps including, crossfold_validation, model specification, fitting on the resamples and finally fitting the model on the training dataset.</p>
+<div class="cell">
+<details>
+<summary>see code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>Salary_Folds <span class="ot">&lt;-</span> <span class="fu">vfold_cv</span>(Salary_Train)</span>
+<span id="cb3-2"><a href="#cb3-2"></a></span>
+<span id="cb3-3"><a href="#cb3-3"></a>lm_spec <span class="ot">&lt;-</span> <span class="fu">linear_reg</span>(<span class="at">engine =</span> <span class="st">"lm"</span>)</span>
+<span id="cb3-4"><a href="#cb3-4"></a></span>
+<span id="cb3-5"><a href="#cb3-5"></a>lm_recipe <span class="ot">&lt;-</span> <span class="fu">recipe</span>(new_annual_salary <span class="sc">~</span>.,Salary_Train) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-6"><a href="#cb3-6"></a>  <span class="fu">step_nzv</span>(<span class="fu">all_predictors</span>())</span>
+<span id="cb3-7"><a href="#cb3-7"></a></span>
+<span id="cb3-8"><a href="#cb3-8"></a>lm_wf <span class="ot">&lt;-</span> <span class="fu">workflow</span>(lm_recipe,lm_spec)</span>
+<span id="cb3-9"><a href="#cb3-9"></a></span>
+<span id="cb3-10"><a href="#cb3-10"></a>doParallel<span class="sc">::</span><span class="fu">registerDoParallel</span>(<span class="at">cores =</span> <span class="dv">10</span>)</span>
+<span id="cb3-11"><a href="#cb3-11"></a>ctrl_preds <span class="ot">&lt;-</span> <span class="fu">control_resamples</span>(<span class="at">save_pred =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-12"><a href="#cb3-12"></a>cv_results <span class="ot">&lt;-</span> <span class="fu">fit_resamples</span>(lm_wf,Salary_Folds,<span class="at">control =</span> ctrl_preds)</span>
+<span id="cb3-13"><a href="#cb3-13"></a></span>
+<span id="cb3-14"><a href="#cb3-14"></a>lm_wf <span class="ot">&lt;-</span> <span class="fu">fit</span>(lm_wf,Salary_Train)</span>
+<span id="cb3-15"><a href="#cb3-15"></a></span>
+<span id="cb3-16"><a href="#cb3-16"></a><span class="fu">collect_metrics</span>(cv_results,<span class="at">summarize =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-17"><a href="#cb3-17"></a>  <span class="fu">filter</span>(.metric <span class="sc">==</span> <span class="st">"rsq"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-18"><a href="#cb3-18"></a>  <span class="fu">summarise</span>(<span class="at">avg_estimate =</span> <span class="fu">mean</span>(.estimate),</span>
+<span id="cb3-19"><a href="#cb3-19"></a>            <span class="at">.groups =</span> <span class="st">"drop"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 1 × 1
+  avg_estimate
+         &lt;dbl&gt;
+1        0.264</code></pre>
+</div>
+</div>
+<p>Across all 10 validation folds, the linear regression model’s adjusted R-square averaged 0.272. It is possible to tune the parameters and use battery of other machine learning models to improve performance. In the previous post, we utilised random forest to try an improve the model. Despite, requiring additional computational power, the increases in peformance were marginal to neglible.</p>
+<p>At this point, we have completed our first objective. We are able to reproduce the LASSO regresison results in the previous post. The next objective is to determine the parsimony of the model. Here, we fit model on the test data.</p>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+<div class="cell">
+
+</div>
+</section>
+</section>
+<section id="results" class="level1">
+<h1>RESULTS</h1>
+<section id="training-dataset" class="level3">
+<h3 class="anchored" data-anchor-id="training-dataset">Training Dataset</h3>
+<div class="cell">
+<div class="cell-output-display">
+
+<div id="fxdwjainnr" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>@import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+#fxdwjainnr .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#fxdwjainnr .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#fxdwjainnr .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#fxdwjainnr .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#fxdwjainnr .gt_bottom_border {
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#fxdwjainnr .gt_col_headings {
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: none;
+  border-bottom-width: 1px;
+  border-bottom-color: #334422;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#fxdwjainnr .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 12px;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#fxdwjainnr .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 12px;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#fxdwjainnr .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#fxdwjainnr .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#fxdwjainnr .gt_column_spanner {
+  border-bottom-style: none;
+  border-bottom-width: 1px;
+  border-bottom-color: #334422;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#fxdwjainnr .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#fxdwjainnr .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#fxdwjainnr .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#fxdwjainnr .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#fxdwjainnr .gt_row {
+  padding-top: 7px;
+  padding-bottom: 7px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#fxdwjainnr .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#fxdwjainnr .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#fxdwjainnr .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#fxdwjainnr .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#fxdwjainnr .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#fxdwjainnr .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#fxdwjainnr .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#fxdwjainnr .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#fxdwjainnr .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#fxdwjainnr .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#fxdwjainnr .gt_table_body {
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #FFFFFF;
+}
+
+#fxdwjainnr .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#fxdwjainnr .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#fxdwjainnr .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#fxdwjainnr .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#fxdwjainnr .gt_left {
+  text-align: left;
+}
+
+#fxdwjainnr .gt_center {
+  text-align: center;
+}
+
+#fxdwjainnr .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#fxdwjainnr .gt_font_normal {
+  font-weight: normal;
+}
+
+#fxdwjainnr .gt_font_bold {
+  font-weight: bold;
+}
+
+#fxdwjainnr .gt_font_italic {
+  font-style: italic;
+}
+
+#fxdwjainnr .gt_super {
+  font-size: 65%;
+}
+
+#fxdwjainnr .gt_two_val_uncert {
+  display: inline-block;
+  line-height: 1em;
+  text-align: right;
+  font-size: 60%;
+  vertical-align: -0.25em;
+  margin-left: 0.1em;
+}
+
+#fxdwjainnr .gt_footnote_marks {
+  font-style: italic;
+  font-weight: normal;
+  font-size: 75%;
+  vertical-align: 0.4em;
+}
+
+#fxdwjainnr .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#fxdwjainnr .gt_slash_mark {
+  font-size: 0.7em;
+  line-height: 0.7em;
+  vertical-align: 0.15em;
+}
+
+#fxdwjainnr .gt_fraction_numerator {
+  font-size: 0.6em;
+  line-height: 0.6em;
+  vertical-align: 0.45em;
+}
+
+#fxdwjainnr .gt_fraction_denominator {
+  font-size: 0.6em;
+  line-height: 0.6em;
+  vertical-align: -0.05em;
+}
+</style>
+<table class="gt_table">
+  <thead class="gt_header">
+    <tr>
+      <th colspan="2" class="gt_heading gt_title gt_font_normal" style="font-family: 'Libre Franklin'; font-weight: 800;">Linear Regression Model: Training Dataset</th>
+    </tr>
+    <tr>
+      <th colspan="2" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style="">Depedent Variable: log(Annual Salary(USD))</th>
+    </tr>
+  </thead>
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" style="color: #A9A9A9; font-family: 'Source Sans Pro'; text-transform: uppercase;"><strong>Characteristic</strong></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" style="color: #A9A9A9; font-family: 'Source Sans Pro'; text-transform: uppercase;"><strong>Beta</strong> <strong>(SE)</strong><sup class="gt_footnote_marks">1,2</sup></th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">(Intercept)</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">11***
+(0.022)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">years_of_experience_in_field_X21...30.years</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.37***
+(0.023)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">job_title_director</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.32***
+(0.013)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">years_of_experience_in_field_X11...20.years</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.28***
+(0.020)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">highest_level_of_education_completed_PhD</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.26***
+(0.017)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">industry_computing</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.24
+(0.172)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">job_title_engineer</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.25***
+(0.016)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">industry_government</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.25**
+(0.086)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">city_york</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.24***
+(0.016)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">years_of_experience_in_field_X8...10.years</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.23***
+(0.020)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">job_title_senior</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.16***
+(0.012)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">job_title_manager</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.12***
+(0.010)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">years_of_experience_in_field_X5.7.years</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.12***
+(0.019)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">industry_engineering</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.12*
+(0.063)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">how_old_are_you_X45.54</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.11***
+(0.020)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">how_old_are_you_X35.44</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.10***
+(0.018)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">industry_health</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.12
+(0.085)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">industry_finance</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.25
+(0.199)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">how_old_are_you_X25.34</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.05**
+(0.017)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">highest_level_of_education_completed_Master.s.degree</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.04***
+(0.008)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">job_title_analyst</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.04**
+(0.016)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">industry_tech</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.05
+(0.172)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">industry_administration</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.03
+(0.092)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">years_of_experience_in_field_X2...4.years</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.01
+(0.019)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">industry_banking</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">-0.19
+(0.199)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">industry_accounting</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;"></td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">industry_care</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">-0.04
+(0.086)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">industry_manufacturing</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">-0.04
+(0.061)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">gender_Woman</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">-0.03***
+(0.009)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">overall_years_of_professional_experience_X11...20.years</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">-0.11***
+(0.023)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">overall_years_of_professional_experience_X21...30.years</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">-0.11***
+(0.023)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">overall_years_of_professional_experience_X8...10.years</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">-0.11***
+(0.024)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">race_White</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">-0.10***
+(0.010)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">overall_years_of_professional_experience_X5.7.years</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">-0.13***
+(0.024)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">overall_years_of_professional_experience_X2...4.years</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">-0.17***
+(0.024)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">industry_nonprofits</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">-0.18***
+(0.014)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">industry_education</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">-0.18***
+(0.013)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">highest_level_of_education_completed_Some.college</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">-0.20***
+(0.014)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">job_title_assistant</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">-0.23***
+(0.015)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">industry_public</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">-0.26***
+(0.053)</td></tr>
+  </tbody>
+  <tfoot class="gt_sourcenotes">
+    <tr>
+      <td class="gt_sourcenote" colspan="2">Adjusted R-square: 0.2732</td>
+    </tr>
+  </tfoot>
+  <tfoot class="gt_footnotes">
+    <tr>
+      <td class="gt_footnote" colspan="2"><sup class="gt_footnote_marks">1</sup> *p&lt;0.05; **p&lt;0.01; ***p&lt;0.001</td>
+    </tr>
+    <tr>
+      <td class="gt_footnote" colspan="2"><sup class="gt_footnote_marks">2</sup> SE = Standard Error</td>
+    </tr>
+  </tfoot>
+</table>
+</div>
+</div>
+</div>
+</section>
+<section id="test-dataset" class="level3">
+<h3 class="anchored" data-anchor-id="test-dataset">Test Dataset</h3>
+<div class="cell">
+<div class="cell-output-display">
+
+<div id="phmooqbfzn" style="overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>@import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Libre+Franklin:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+html {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', 'Fira Sans', 'Droid Sans', Arial, sans-serif;
+}
+
+#phmooqbfzn .gt_table {
+  display: table;
+  border-collapse: collapse;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#phmooqbfzn .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#phmooqbfzn .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#phmooqbfzn .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 0;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#phmooqbfzn .gt_bottom_border {
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#phmooqbfzn .gt_col_headings {
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: none;
+  border-bottom-width: 1px;
+  border-bottom-color: #334422;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#phmooqbfzn .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 12px;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#phmooqbfzn .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 12px;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#phmooqbfzn .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#phmooqbfzn .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#phmooqbfzn .gt_column_spanner {
+  border-bottom-style: none;
+  border-bottom-width: 1px;
+  border-bottom-color: #334422;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#phmooqbfzn .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#phmooqbfzn .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#phmooqbfzn .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#phmooqbfzn .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#phmooqbfzn .gt_row {
+  padding-top: 7px;
+  padding-bottom: 7px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#phmooqbfzn .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#phmooqbfzn .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#phmooqbfzn .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#phmooqbfzn .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#phmooqbfzn .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#phmooqbfzn .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#phmooqbfzn .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#phmooqbfzn .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#phmooqbfzn .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#phmooqbfzn .gt_striped {
+  background-color: rgba(128, 128, 128, 0.05);
+}
+
+#phmooqbfzn .gt_table_body {
+  border-top-style: none;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #FFFFFF;
+}
+
+#phmooqbfzn .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#phmooqbfzn .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#phmooqbfzn .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#phmooqbfzn .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#phmooqbfzn .gt_left {
+  text-align: left;
+}
+
+#phmooqbfzn .gt_center {
+  text-align: center;
+}
+
+#phmooqbfzn .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#phmooqbfzn .gt_font_normal {
+  font-weight: normal;
+}
+
+#phmooqbfzn .gt_font_bold {
+  font-weight: bold;
+}
+
+#phmooqbfzn .gt_font_italic {
+  font-style: italic;
+}
+
+#phmooqbfzn .gt_super {
+  font-size: 65%;
+}
+
+#phmooqbfzn .gt_two_val_uncert {
+  display: inline-block;
+  line-height: 1em;
+  text-align: right;
+  font-size: 60%;
+  vertical-align: -0.25em;
+  margin-left: 0.1em;
+}
+
+#phmooqbfzn .gt_footnote_marks {
+  font-style: italic;
+  font-weight: normal;
+  font-size: 75%;
+  vertical-align: 0.4em;
+}
+
+#phmooqbfzn .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#phmooqbfzn .gt_slash_mark {
+  font-size: 0.7em;
+  line-height: 0.7em;
+  vertical-align: 0.15em;
+}
+
+#phmooqbfzn .gt_fraction_numerator {
+  font-size: 0.6em;
+  line-height: 0.6em;
+  vertical-align: 0.45em;
+}
+
+#phmooqbfzn .gt_fraction_denominator {
+  font-size: 0.6em;
+  line-height: 0.6em;
+  vertical-align: -0.05em;
+}
+</style>
+<table class="gt_table">
+  <thead class="gt_header">
+    <tr>
+      <th colspan="2" class="gt_heading gt_title gt_font_normal" style="font-family: 'Libre Franklin'; font-weight: 800;">Linear Regression Model: Test Dataset</th>
+    </tr>
+    <tr>
+      <th colspan="2" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border" style="">Depedent Variable: log(Annual Salary(USD))</th>
+    </tr>
+  </thead>
+  <thead class="gt_col_headings">
+    <tr>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" style="color: #A9A9A9; font-family: 'Source Sans Pro'; text-transform: uppercase;"><strong>Characteristic</strong></th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_center" rowspan="1" colspan="1" style="color: #A9A9A9; font-family: 'Source Sans Pro'; text-transform: uppercase;"><strong>Beta</strong> <strong>(SE)</strong><sup class="gt_footnote_marks">1,2</sup></th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">(Intercept)</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">11***
+(0.037)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">years_of_experience_in_field_X21...30.years</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.48***
+(0.038)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">job_title_director</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.32***
+(0.022)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">years_of_experience_in_field_X11...20.years</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.33***
+(0.031)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">highest_level_of_education_completed_PhD</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.29***
+(0.028)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">industry_computing</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">-0.68
+(0.474)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">job_title_engineer</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.19***
+(0.027)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">industry_government</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.29*
+(0.117)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">city_york</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.27***
+(0.027)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">years_of_experience_in_field_X8...10.years</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.25***
+(0.032)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">job_title_senior</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.16***
+(0.020)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">job_title_manager</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.11***
+(0.017)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">years_of_experience_in_field_X5.7.years</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.19***
+(0.030)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">industry_engineering</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">-0.02
+(0.114)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">how_old_are_you_X45.54</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.12***
+(0.033)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">how_old_are_you_X35.44</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.11***
+(0.031)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">industry_health</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.21
+(0.125)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">industry_finance</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.29
+(0.335)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">how_old_are_you_X25.34</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.10***
+(0.029)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">highest_level_of_education_completed_Master.s.degree</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.03*
+(0.014)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">job_title_analyst</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.06*
+(0.026)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">industry_tech</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">1.0*
+(0.474)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">industry_administration</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">-0.06
+(0.136)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">years_of_experience_in_field_X2...4.years</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.07*
+(0.030)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">industry_banking</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">-0.48
+(0.594)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">industry_accounting</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.23
+(0.490)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">industry_care</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">-0.14
+(0.126)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">industry_manufacturing</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">0.09
+(0.112)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">gender_Woman</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">-0.02
+(0.016)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">overall_years_of_professional_experience_X11...20.years</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">-0.13***
+(0.038)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">overall_years_of_professional_experience_X21...30.years</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">-0.15***
+(0.038)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">overall_years_of_professional_experience_X8...10.years</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">-0.16***
+(0.040)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">race_White</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">-0.15***
+(0.017)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">overall_years_of_professional_experience_X5.7.years</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">-0.22***
+(0.040)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">overall_years_of_professional_experience_X2...4.years</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">-0.24***
+(0.040)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">industry_nonprofits</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">-0.23***
+(0.023)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">industry_education</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">-0.22***
+(0.022)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">highest_level_of_education_completed_Some.college</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">-0.26***
+(0.023)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">job_title_assistant</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">-0.18***
+(0.025)</td></tr>
+    <tr><td class="gt_row gt_left" style="font-family: 'Source Sans Pro'; font-weight: 400;">industry_public</td>
+<td class="gt_row gt_center" style="font-family: 'Source Sans Pro'; font-weight: 400;">-0.19*
+(0.090)</td></tr>
+  </tbody>
+  <tfoot class="gt_sourcenotes">
+    <tr>
+      <td class="gt_sourcenote" colspan="2">Adjusted R-square: 0.2624</td>
+    </tr>
+  </tfoot>
+  <tfoot class="gt_footnotes">
+    <tr>
+      <td class="gt_footnote" colspan="2"><sup class="gt_footnote_marks">1</sup> *p&lt;0.05; **p&lt;0.01; ***p&lt;0.001</td>
+    </tr>
+    <tr>
+      <td class="gt_footnote" colspan="2"><sup class="gt_footnote_marks">2</sup> SE = Standard Error</td>
+    </tr>
+  </tfoot>
+</table>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="conclusion" class="level1">
+<h1>CONCLUSION</h1>
+<p>The model performs well on an out-of-sample dataset with year of experience (21 - 30 years), job title (Director) and highest level of education (PhD) being among the most important predictors of annual salary. Provided the questions utilised in 2022 are similar or identical to the 2021 survey, the model above can be evaluated on the 2022 survey results.</p>
+</section>
+<section id="references" class="level1">
+<h1>REFERENCES</h1>
+<p>Silge,J. 2021.Fit and predict with tidymodels for #TidyTuesday bird baths in Australia. Available From: https://juliasilge.com/blog/bird-baths/ (Accessed 24 December 2021).</p>
+<p>Wickham et al., (2019). Welcome to the tidyverse. Journal of Open Source Software, 4(43), 1686, https://doi.org/10.21105/joss.01686</p>
+<p>Sam Firke (2021). janitor: Simple Tools for Examining and Cleaning Dirty Data. R package version 2.1.0. https://CRAN.R-project.org/package=janitor</p>
+<p>Kuhn et al., (2020). Tidymodels: a collection of packages for modeling and machine learning using tidyverse principles. https://www.tidymodels.org</p>
+<p>Jerome Friedman, Trevor Hastie, Robert Tibshirani (2010). Regularization Paths for Generalized Linear Models via Coordinate Descent. Journal of Statistical Software, 33(1), 1-22. https://www.jstatsoft.org/v33/i01/.</p>
+<p>Richard Iannone, Joe Cheng and Barret Schloerke (2021). gt: Easily Create Presentation-Ready Display Tables. R package version 0.3.1. https://CRAN.R-project.org/package=gt</p>
+<p>Thomas Mock (2021). gtExtras: A Collection of Helper Functions for the gt Package. R package version 0.2.2.11. https://github.com/jthomasmock/gtExtras</p>
+<p>Sjoberg DD, Whiting K, Curry M, Lavery JA, Larmarange J. Reproducible summary tables with the gtsummary package. The R Journal 2021;13:570–80. https://doi.org/10.32614/RJ-2021-053.</p>
+
+
+
+</section>
+
+<div class="quarto-listing quarto-listing-container-default" id="listing-listing">
+<div class="list quarto-listing-default">
+
+</div>
+<div class="listing-no-matching d-none">
+No matching items
+</div>
+</div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  let localAlternateSentinel = 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } 
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

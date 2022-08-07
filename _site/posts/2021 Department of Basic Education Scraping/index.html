@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.0.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Sivuyile Nzimeni">
+<meta name="dcterms.date" content="2021-12-30">
+<meta name="description" content="This post details the data scraping process for obtaining the schools database of from the Department of Basic Education in South Africa.">
+
+<title>Sivuyile Nzimeni - Department of Basic Education: Schools Database</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-listing/list.min.js"></script>
+<script src="../../site_libs/quarto-listing/quarto-listing.js"></script>
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+<script>
+
+  window.document.addEventListener("DOMContentLoaded", function (_event) {
+    const listingTargetEl = window.document.querySelector('#listing-listing .list');
+    if (!listingTargetEl) {
+      // No listing discovered, do not attach.
+      return; 
+    }
+
+    const options = {
+      valueNames: [{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
+      
+      searchColumns: [],
+    };
+
+    window['quarto-listings'] = window['quarto-listings'] || {};
+    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
+
+    if (window['quarto-listing-loaded']) {
+      window['quarto-listing-loaded']();
+    }
+  });
+
+  window.addEventListener('hashchange',() => {
+    if (window['quarto-listing-loaded']) {
+      window['quarto-listing-loaded']();
+    }
+  })
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<meta name="twitter:title" content="Sivuyile Nzimeni - Department of Basic Education: Schools Database">
+<meta name="twitter:description" content="This post details the data scraping process for obtaining the schools database of from the Department of Basic Education in South Africa.">
+<meta name="twitter:image" content="./DBE_Logo.png">
+<meta name="twitter:creator" content="@Sivu_Nzimeni">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Sivuyile Nzimeni</span>
+  </a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html">About</a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com/Sivu_Nzimeni"><i class="bi bi-twitter" role="img">
+</i> 
+ </a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/SivuyileNzimeni"><i class="bi bi-github" role="img">
+</i> 
+ </a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://za.linkedin.com/in/sivuyile-nzimeni-98006ba0"><i class="bi bi-linkedin" role="img">
+</i> 
+ </a>
+  </li>  
+</ul>
+              <div class="quarto-toggle-container">
+                  <a href="" class="quarto-color-scheme-toggle nav-link" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+              </div>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Department of Basic Education: Schools Database</h1>
+                  <div>
+        <div class="description">
+          This post details the data scraping process for obtaining the schools database of from the Department of Basic Education in South Africa.
+        </div>
+      </div>
+                          <div class="quarto-categories">
+                <div class="quarto-category">web-scraping</div>
+                <div class="quarto-category">data cleaning</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Sivuyile Nzimeni </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">December 30, 2021</p>
+      </div>
+    </div>
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">INTRODUCTION</a>
+  <ul class="collapse">
+  <li><a href="#data-scraping" id="toc-data-scraping" class="nav-link" data-scroll-target="#data-scraping">DATA SCRAPING</a></li>
+  <li><a href="#downloads-so-many-downloads." id="toc-downloads-so-many-downloads." class="nav-link" data-scroll-target="#downloads-so-many-downloads.">DOWNLOADS, SO MANY DOWNLOADS.</a></li>
+  <li><a href="#bring-your-brooms-cause-its-a-mess" id="toc-bring-your-brooms-cause-its-a-mess" class="nav-link" data-scroll-target="#bring-your-brooms-cause-its-a-mess">BRING YOUR BROOMS CAUSE IT’S A MESS!</a></li>
+  </ul></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">CONCLUSION</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">REFERENCES</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+<section id="introduction" class="level1">
+<h1>INTRODUCTION</h1>
+<p>A few years ago, I was a student pursuing Masters of Commerce degree. The topic had something to do with the relationship between Education, Labour and Business outcomes. My pursuit of the qualification is defunct. However, there are several artefacts worth writting up. In this post, we will discuss the South African Schools Database. The Department of Basic Education regularly publishes versions of the School Database including a number of notable variables such as the school’s location, contact information, number of learners and teachers etc. The data is published in a non-standardised matter. This makes it an interesting data wrangling task.</p>
+<section id="data-scraping" class="level2">
+<h2 class="anchored" data-anchor-id="data-scraping">DATA SCRAPING</h2>
+<p>The first hurdle is the volume of files publised on the <a href="https://www.education.gov.za/Programmes/EMIS/EMISDownloads.aspx">DBE</a> website. It is possible to download all 200 files by hand and save them to a directory of your choosing. However, such a process would be tedious and error prone(speaking from experience, ofcourse). The R-Programming language is a perfect companion for this task. To download the files, we can use two important packages, rvest and xml2.</p>
+<p>Firstly, we specify the url on the read_html function. Thereafter, we use the html_elements function to point to the html tag of interest. In this case, we are interest in the “a” tag, specifically, the href (or link) attribute.</p>
+<p>We store the result in a data.frame object and use a regular expression to filter for values that start with a punctuation followed by “Link” and values that contain the term “forcedownload”. Finally, we append the path to file (our base url). The resulting data.frame contains all 200 downloadable files.</p>
+</section>
+<section id="downloads-so-many-downloads." class="level2">
+<h2 class="anchored" data-anchor-id="downloads-so-many-downloads.">DOWNLOADS, SO MANY DOWNLOADS.</h2>
+<p>With the links in hand, we can tackle the next hurdle, downloading the files. Usually, we could use the commandline to download the files. For example, the single command below.</p>
+<div class="cell">
+<details>
+<summary>see code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource bash number-lines code-with-copy"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1"></a><span class="fu">wget</span> <span class="at">-i</span> some_text_file.txt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>However, the DBE datasets are saved as either xlsx or xls format with a prompt on click to download the file. There are probably ways around this issue. Luckily, xml2 has a convenient function to handle this issue. In the code below, we use a for-loop to download each file in our dataset and save them in a specified sub folder. To avoid a break in the for-loop when an error occurs, we add the try function. As an add-on, we print a statement after each download. Depending on your internet connection speed and the website’s response time, this script can take five minutes to download all the files.</p>
+<div class="cell">
+<details>
+<summary>see code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="fu">seq_along</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(Data_Sets))){</span>
+<span id="cb2-2"><a href="#cb2-2"></a>  <span class="fu">try</span>(<span class="fu">download_xml</span>(<span class="at">url =</span> Data_Sets<span class="sc">$</span>dataset_links[[i]],</span>
+<span id="cb2-3"><a href="#cb2-3"></a>               <span class="at">file =</span> <span class="fu">paste0</span>(<span class="st">"./Schools_Db/"</span>,<span class="st">"file_"</span>,i,<span class="st">".xlsx"</span>)))</span>
+<span id="cb2-4"><a href="#cb2-4"></a>  <span class="fu">print</span>(<span class="fu">paste0</span>(<span class="st">"File "</span>,i, <span class="st">" downloaded "</span>,<span class="st">"proceeding to file "</span>,i<span class="sc">+</span><span class="dv">1</span>,<span class="st">"."</span>))</span>
+<span id="cb2-5"><a href="#cb2-5"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="bring-your-brooms-cause-its-a-mess" class="level2">
+<h2 class="anchored" data-anchor-id="bring-your-brooms-cause-its-a-mess">BRING YOUR BROOMS CAUSE IT’S A MESS!</h2>
+<p>Another set of tasks to address is reading and cleaning the excel files. Using other software such as Excel or SPSS, these tasks would be cumbersome. Yet with R, Python or other programming languages, it possible handle more than one file at a time. Below, we use the readxl and purrr R packages to iteratively read and clean the files.</p>
+<div class="cell">
+<details>
+<summary>see code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="co"># All_Excel_Reader --------------------------------------------------------</span></span>
+<span id="cb3-2"><a href="#cb3-2"></a>all_excel <span class="ot">&lt;-</span> <span class="cf">function</span>(path){</span>
+<span id="cb3-3"><a href="#cb3-3"></a>  collect_sheets <span class="ot">&lt;-</span> <span class="fu">excel_sheets</span>(path)</span>
+<span id="cb3-4"><a href="#cb3-4"></a>  number_of_sheets <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(collect_sheets)</span>
+<span id="cb3-5"><a href="#cb3-5"></a>  per_sheet <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb3-6"><a href="#cb3-6"></a>  <span class="cf">for</span>(i <span class="cf">in</span> <span class="fu">seq_along</span>(number_of_sheets)){</span>
+<span id="cb3-7"><a href="#cb3-7"></a>    per_sheet[[i]] <span class="ot">&lt;-</span> <span class="fu">read_xlsx</span>(<span class="at">path =</span> path,</span>
+<span id="cb3-8"><a href="#cb3-8"></a>                                <span class="at">sheet =</span> collect_sheets[i])</span>
+<span id="cb3-9"><a href="#cb3-9"></a>  }</span>
+<span id="cb3-10"><a href="#cb3-10"></a>  <span class="fu">return</span>(per_sheet)}</span>
+<span id="cb3-11"><a href="#cb3-11"></a><span class="co"># All_Masterlist ----------------------------------------------------------</span></span>
+<span id="cb3-12"><a href="#cb3-12"></a>EDU_Dbs <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">master_list =</span> <span class="fu">list.files</span>(<span class="at">path =</span> <span class="st">"./Schools_Db"</span>,</span>
+<span id="cb3-13"><a href="#cb3-13"></a>           <span class="at">full.names=</span><span class="cn">TRUE</span>,</span>
+<span id="cb3-14"><a href="#cb3-14"></a>           <span class="at">pattern =</span> <span class="st">".xlsx"</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-15"><a href="#cb3-15"></a>  <span class="fu">mutate</span>(<span class="at">schools_db =</span> <span class="fu">map</span>(master_list,all_excel))</span>
+<span id="cb3-16"><a href="#cb3-16"></a></span>
+<span id="cb3-17"><a href="#cb3-17"></a>EDU_Dbs <span class="ot">&lt;-</span> EDU_Dbs <span class="sc">%&gt;%</span> </span>
+<span id="cb3-18"><a href="#cb3-18"></a>  <span class="fu">unnest</span>(schools_db)</span>
+<span id="cb3-19"><a href="#cb3-19"></a></span>
+<span id="cb3-20"><a href="#cb3-20"></a>EDU_Dbs<span class="sc">$</span>schools_db <span class="ot">&lt;-</span> <span class="fu">lapply</span>(EDU_Dbs<span class="sc">$</span>schools_db,sapply,as.character)</span>
+<span id="cb3-21"><a href="#cb3-21"></a></span>
+<span id="cb3-22"><a href="#cb3-22"></a>EDU_Dbs<span class="sc">$</span>schools_db <span class="ot">&lt;-</span> <span class="fu">lapply</span>(EDU_Dbs<span class="sc">$</span>schools_db,as.data.frame)</span>
+<span id="cb3-23"><a href="#cb3-23"></a></span>
+<span id="cb3-24"><a href="#cb3-24"></a>EDU_Dbs <span class="ot">&lt;-</span> EDU_Dbs <span class="sc">%&gt;%</span> </span>
+<span id="cb3-25"><a href="#cb3-25"></a>  <span class="fu">unnest</span>(schools_db)</span>
+<span id="cb3-26"><a href="#cb3-26"></a></span>
+<span id="cb3-27"><a href="#cb3-27"></a>EDU_Dbs <span class="ot">&lt;-</span> EDU_Dbs <span class="sc">%&gt;%</span> </span>
+<span id="cb3-28"><a href="#cb3-28"></a>  <span class="fu">clean_names</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>The resulting data.frame contains hundreds of thousands of rows and nearly 60 columns. Interestingly, most of these variable are effectively differing naming conventions such as emisno = natemis = oldnatemis = newnatemis. The insistent naming conventions extend to other variables such as gps coordinates and centre details. The spectacularly unoptimised script is available<a href="https://github.com/SivuyileNzimeni/DBE_Data/blob/main/Schools_Db_Cleaner.R">here</a>. The scraper script,cleaning script and downloaded xlsx files are all available on the <a href="https://github.com/SivuyileNzimeni/DBE_Data">this github report</a>.</p>
+</section>
+</section>
+<section id="conclusion" class="level1">
+<h1>CONCLUSION</h1>
+<p>Using R to clean data is a wise choice. This post highlighted an example of implementation on a relatively small dataset. The final dataset can be used to match school performance reports regularly published by the Department of Basic Education.</p>
+</section>
+<section id="references" class="level1">
+<h1>REFERENCES</h1>
+<p>Wickham et al., (2019). Welcome to the tidyverse. Journal of Open Source Software, 4(43), 1686, https://doi.org/10.21105/joss.01686</p>
+<p>Sam Firke (2021). janitor: Simple Tools for Examining and Cleaning Dirty Data. R package version 2.1.0. https://CRAN.R-project.org/package=janitor</p>
+<p>Hadley Wickham and Jennifer Bryan (2019). readxl: Read Excel Files. R package version 1.3.1. https://CRAN.R-project.org/package=readxl</p>
+<p>Jeroen Ooms (2021). writexl: Export Data Frames to Excel ‘xlsx’ Format. R package version 1.4.0. https://CRAN.R-project.org/package=writexl</p>
+<p>Hadley Wickham (2021). rvest: Easily Harvest (Scrape) Web Pages. R package version 1.0.2. https://CRAN.R-project.org/package=rvest</p>
+
+
+
+</section>
+
+<div class="quarto-listing quarto-listing-container-default" id="listing-listing">
+<div class="list quarto-listing-default">
+
+</div>
+<div class="listing-no-matching d-none">
+No matching items
+</div>
+</div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  let localAlternateSentinel = 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } 
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

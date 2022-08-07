@@ -1,0 +1,121 @@
+[
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "Sivuyile Nzimeni is a Data Analyst in the Faculty of Economic and Management Sciences, University of the Free State."
+  },
+  {
+    "objectID": "about.html#experience",
+    "href": "about.html#experience",
+    "title": "About",
+    "section": "Experience",
+    "text": "Experience\nAugust 2022 - Present | Data Analyst| Office of the Dean: Faculty of Economic and Management Sciences| University of the Free State\nNov 2020 - July 2022| Data Analyst; Teaching and Learning Coordinator | Centre for Teaching and Learning & Faculty of Economic and Management Sciences| University of the Free State\nJan 2018 - Nov 2020| Teaching and Learning Coordinator: Economic and Management Sciences | Centre for Teaching and Learning | University of the Free State\nJan 2017 - Dec 2017| Research Assistant | Department of Business Management | University of the Free State\nJul 2017 - Nov 2017| Part-Time Lecturer |Department of Business Management| University of the Free State\nNov 2015 - Nov 2016| Intern | Office of the Dean: Economic and Management Sciences |University of the Free State"
+  },
+  {
+    "objectID": "about.html#education",
+    "href": "about.html#education",
+    "title": "About",
+    "section": "Education",
+    "text": "Education\n2016| University of the Free State |B.Com Honours with specialisation in Entrepreneurial Management\n2015| University of the Free State |B.A with majors in Business Management and Philosophy"
+  },
+  {
+    "objectID": "about.html#interests",
+    "href": "about.html#interests",
+    "title": "About",
+    "section": "Interests",
+    "text": "Interests\n\nR Programming\nData Analysis in Higher Education\nManagement Studies\nEconomics\nSocial Media Analysis\nNatural Language Processing"
+  },
+  {
+    "objectID": "about.html#publications",
+    "href": "about.html#publications",
+    "title": "About",
+    "section": "Publications",
+    "text": "Publications\nMuller, A. Nzimeni, S. Janse van Vuuren, Corlia. 2021. ‘Curriculum enhancement: reflections on the use of data, holistic student support and disciplinary skills development on a decade-long transformative journey’. 2021 University of the Free State Annual Teaching and Learning Conference.\nNzimeni, S. Smit, AVA. 2018. ‘Is the quality of education impacting the global competitiveness of the South African business environment?’ 30th Annual Conference of the South African Institute of Management Scientists: Conference Proceedings, Stellenbosch University, Stellebosch, 16 - 19 September 2018.\nNzimeni, S. 2019. ‘Enrolment versus Attendance: A preliminary investigation into the cost of tutorials’. Siyaphumelela 2019: A Saide project. Johannesburg, 25 - 27 June 2019.\nNzimeni, S. Mofokeng, M. 2022. ‘Automating tutorial attendance register capturing, preliminary results from a pilot project’. Siyaphumelela 2022: A Saide Project. Online, 25 - 27 June 2022."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Posts",
+    "section": "",
+    "text": "news\n\n\nAPI\n\n\ntable\n\n\n\nThis explores 2020 - 2022 Food Prices in South Africa\n\n\n\nSivuyile Nzimeni\n\n\nJun 4, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nweb-scraping\n\n\ndata analysis\n\n\ndata modelling\n\n\n\nThis post details the data scraping process for obtaining data from a South African online vehicle marketplate. In addition, the post shares the results of a linear…\n\n\n\nSivuyile Nzimeni\n\n\nFeb 28, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nnews\n\n\npolitics\n\n\nlegal\n\n\n\nThis posts is the first installment of notes from reading the State of Capture Commission’s Report Part 1. This post post focuses on the first few pages of the report.\n\n\n\nSivuyile Nzimeni\n\n\nJan 5, 2022\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nweb-scraping\n\n\ndata cleaning\n\n\n\nThis post details the data scraping process for obtaining the schools database of from the Department of Basic Education in South Africa.\n\n\n\nSivuyile Nzimeni\n\n\nDec 30, 2021\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\ndata analysis\n\n\ndata modelling\n\n\n\nThis post is about the 2021 Ask A Manager Survey analysis. It provides an overview of the data analysis process attempting to fit a linear regression model to explain…\n\n\n\nSivuyile Nzimeni\n\n\nDec 25, 2021\n\n\n\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "posts/2021 Ask A Manager Salary Survey/index.html",
+    "href": "posts/2021 Ask A Manager Salary Survey/index.html",
+    "title": "Ask A Manager Survey",
+    "section": "",
+    "text": "In early 2021, the Ask A Manager blogsite ran their annual salary survey. The survey responses are stored on googlesheets, making the data accessible to all interested. In a previous post, we discussed data pre-processing and feature selection method. This post focuses two aspects,namely, 1) Reproducibility and 2) Out-of-Sample Testing.\n\n\nIn the previous post, we detailed the feature selection method by regularised regreesion, specifically, LASSO regression. In this post, we will attempt to reproduce the feature selection method.\n\n\n\nIn this post, we will also follow the traditional machine learning workflow including, splitting the data into a training and testing samples, fitting a model, cross-validation and finally fitting the model on the out-of-sample dataset(testing dataset). This approach can inform us about the model’s parsimony. In other words, can the model perform well on an unknown sample."
+  },
+  {
+    "objectID": "posts/2021 Ask A Manager Salary Survey/index.html#important-variable-extraction",
+    "href": "posts/2021 Ask A Manager Salary Survey/index.html#important-variable-extraction",
+    "title": "Ask A Manager Survey",
+    "section": "IMPORTANT VARIABLE EXTRACTION",
+    "text": "IMPORTANT VARIABLE EXTRACTION\nThe resulting object is a list of class “glmnet”. Essentially, the results contain all the iterations through alpha and to find the minimum lambda. As such, there are several results in the object. We are primarily interested in extracting the remaining variables at minimum lambda along with their coeffiecients. The vip package can automate the plotting of the results. However, we want to extract the variables names in order to fit them on our training test. There is probably a package to assist with this step somewhere in the wild, however, we haven’t found it yet. Luckily in R, we can write custom functions. The code below details the variable_extractor function.\n\n\nsee code\nvariable_extractor <- function(a_list){\n  min_lambda <- data.frame(best_lambda =a_list[[\"lambda\"]]==min(a_list[[\"lambda\"]]))\n  min_lambda <- cbind.data.frame(data.frame(index = rownames(min_lambda)),\n                                 min_lambda)\n  min_lambda <- min_lambda %>% \n    filter(best_lambda == TRUE)\n  min_lambda <- as.double(unique(min_lambda$index))\n  lasso_variables <- as.matrix(coef(a_list))|>data.frame()\n  lasso_variables <- cbind.data.frame(variables = rownames(lasso_variables),\n                                      lasso_variables)\n  lasso_variables <- tibble(lasso_variables)\n  lasso_variables <- lasso_variables[,c(1,min_lambda+1)]\n  names(lasso_variables) <- c(\"variable\",\"importance\")\n  lasso_variables <- lasso_variables %>% \n    filter(variable != \"(Intercept)\",\n           importance != 0.00000000) %>% \n    arrange(desc(importance))\n\n  return(lasso_variables)\n}\n\nlasso_variable <- variable_extractor(lasso)\n\n\nThe function takes a list of attribute “glmnet”. Thereafter, we find the smallest lambda. In addition, we extract all the coefficients from the object and store them as a wide dataframe. The dataframe is subset to only contain the variable name along with the coefficients of the smallest lambda value. We discard the intercept and variable with coefficients that are equal to 0.0000000. The final output is identical to the variables extracted by the vip package. Finally, we subset both the training dataset and the testing dataset to only contain the selected independent variables. Since the outcome variable is expressed in USD terms, we log the outcome variable."
+  },
+  {
+    "objectID": "posts/2021 Ask A Manager Salary Survey/index.html#tidymodels-a-clean-interface-for-maching-learning",
+    "href": "posts/2021 Ask A Manager Salary Survey/index.html#tidymodels-a-clean-interface-for-maching-learning",
+    "title": "Ask A Manager Survey",
+    "section": "TIDYMODELS: A CLEAN INTERFACE FOR MACHING LEARNING",
+    "text": "TIDYMODELS: A CLEAN INTERFACE FOR MACHING LEARNING\nThe R programming language doesn’t not lack methods for running machine learning algorithms, it is after all, a statistical programming language. The tidymodels metapackage aims to provide a standard interface for modelling and machine learning using tidyverse principles. Below, we use the package to complete a number of steps including, crossfold_validation, model specification, fitting on the resamples and finally fitting the model on the training dataset.\n\n\nsee code\nSalary_Folds <- vfold_cv(Salary_Train)\n\nlm_spec <- linear_reg(engine = \"lm\")\n\nlm_recipe <- recipe(new_annual_salary ~.,Salary_Train) %>% \n  step_nzv(all_predictors())\n\nlm_wf <- workflow(lm_recipe,lm_spec)\n\ndoParallel::registerDoParallel(cores = 10)\nctrl_preds <- control_resamples(save_pred = TRUE)\ncv_results <- fit_resamples(lm_wf,Salary_Folds,control = ctrl_preds)\n\nlm_wf <- fit(lm_wf,Salary_Train)\n\ncollect_metrics(cv_results,summarize = FALSE) %>% \n  filter(.metric == \"rsq\") %>% \n  summarise(avg_estimate = mean(.estimate),\n            .groups = \"drop\")\n\n\n# A tibble: 1 × 1\n  avg_estimate\n         <dbl>\n1        0.264\n\n\nAcross all 10 validation folds, the linear regression model’s adjusted R-square averaged 0.272. It is possible to tune the parameters and use battery of other machine learning models to improve performance. In the previous post, we utilised random forest to try an improve the model. Despite, requiring additional computational power, the increases in peformance were marginal to neglible.\nAt this point, we have completed our first objective. We are able to reproduce the LASSO regresison results in the previous post. The next objective is to determine the parsimony of the model. Here, we fit model on the test data."
+  },
+  {
+    "objectID": "posts/2021 Department of Basic Education Scraping/index.html",
+    "href": "posts/2021 Department of Basic Education Scraping/index.html",
+    "title": "Department of Basic Education: Schools Database",
+    "section": "",
+    "text": "CONCLUSION\nUsing R to clean data is a wise choice. This post highlighted an example of implementation on a relatively small dataset. The final dataset can be used to match school performance reports regularly published by the Department of Basic Education.\n\n\nREFERENCES\nWickham et al., (2019). Welcome to the tidyverse. Journal of Open Source Software, 4(43), 1686, https://doi.org/10.21105/joss.01686\nSam Firke (2021). janitor: Simple Tools for Examining and Cleaning Dirty Data. R package version 2.1.0. https://CRAN.R-project.org/package=janitor\nHadley Wickham and Jennifer Bryan (2019). readxl: Read Excel Files. R package version 1.3.1. https://CRAN.R-project.org/package=readxl\nJeroen Ooms (2021). writexl: Export Data Frames to Excel ‘xlsx’ Format. R package version 1.4.0. https://CRAN.R-project.org/package=writexl\nHadley Wickham (2021). rvest: Easily Harvest (Scrape) Web Pages. R package version 1.0.2. https://CRAN.R-project.org/package=rvest\n\n\n\n\n\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "posts/2021 Second-Hand Cars in South Africa/Index.html",
+    "href": "posts/2021 Second-Hand Cars in South Africa/Index.html",
+    "title": "South African Car Prices",
+    "section": "",
+    "text": "South Africa has a plethora of online vehicle marketplaces. Often, their pool of vehicles for sale are usually > 50 000 on a daily basis. The vehicle listings offer a vast amount of car related data. Naturally, web-scraping the data provides an opportunity to fit a Machine-Learning model and endless exploration for petrol-heads (such as myself). Nearly all the online vehicle marketplaces have restrictive Terms and Conditions deterring the use of their data for commercial purposes and bombarding of their servers through web scrapping among other restrictions. Unfortunately, this means web scraping script cannot be shared in this post as it may reveal where the data were obtained, methodology of scraping the data etc. In addition, the website of the online vehicle marketplace will not be revealed."
+  },
+  {
+    "objectID": "posts/2021 Second-Hand Cars in South Africa/Index.html#importing-the-data",
+    "href": "posts/2021 Second-Hand Cars in South Africa/Index.html#importing-the-data",
+    "title": "South African Car Prices",
+    "section": "IMPORTING THE DATA",
+    "text": "IMPORTING THE DATA\nBelow, we import the data and use dplyr::glimpse function to see the number of columns and values. The dataset contains a few important variables including the car_name and vehicle manufacturer. It is worth noting that the car_name variable appears to a free text field where the person listing the vehicle can modify the car name to include marketing terms such as: “excellent condition”,“reduce price” etc.\n\n\nsee code\nCar_Data <- read_csv(file =\"./2021-09-03_MANY_VEHICLES_Clean_Db.csv\") %>% \n  clean_names()\n\nglimpse(Car_Data)\n\n\nRows: 62,196\nColumns: 10\n$ car_name             <chr> \"9-3 Sport 2.0 Linear Lpt\", \"S40 2.0T\", \"V40 2.0\"…\n$ vehicle_manufacturer <chr> \"Saab\", \"Volvo\", \"Volvo\", \"Hyundai\", \"Volvo\", \"Ho…\n$ year                 <dbl> 2007, 1999, 2001, 2000, 2000, 1998, 1996, 1996, 2…\n$ mileage              <dbl> 200000, 285000, 271000, 125000, 190000, 267000, 1…\n$ price                <dbl> 13700, 18900, 18900, 20000, 20900, 21900, 21900, …\n$ fuel_type            <chr> \"Petrol\", \"Petrol\", \"Petrol\", \"Petrol\", \"Petrol\",…\n$ transmission         <chr> \"Manual\", \"Manual\", \"Manual\", \"Manual\", \"Automati…\n$ dealership           <chr> \"Mahala Motors\", \"WeBuyCars Midstream\", \"WeBuyCar…\n$ city_town            <chr> \"Klerksdorp\", \"Centurion\", \"Cape Town\", \"Johannes…\n$ province             <chr> \"North West Province\", \"Gauteng\", \"Western Cape\",…\n\n\nSimilarly, the free text field, also means that vehicle naming conventions deviate from the vehicle manufacturer specifications. Other text variables also contain these anomalous changes in text. The code below demonstrates an example of idiosyncrasies.\n\n\nsee code\nCar_Data %>% \n  filter(str_detect(car_name,\"condition\"))\n\n\n# A tibble: 4 × 10\n  car_name  vehic…¹  year mileage  price fuel_…² trans…³ deale…⁴ city_…⁵ provi…⁶\n  <chr>     <chr>   <dbl>   <dbl>  <dbl> <chr>   <chr>   <chr>   <chr>   <chr>  \n1 Focus Ex… Ford     2008  305000  69950 Petrol  Manual  Cars a… Brakpan Gauteng\n2 Utility … Chevro…  2015  198000 114900 Petrol  Manual  United… Boksbu… Gauteng\n3 Clio Exc… Renault  2019   55000 160000 Petrol  Manual  Bright… Johann… Gauteng\n4 Ranger E… Ford     2017  107000 299900 Diesel  Automa… Bright… Johann… Gauteng\n# … with abbreviated variable names ¹​vehicle_manufacturer, ²​fuel_type,\n#   ³​transmission, ⁴​dealership, ⁵​city_town, ⁶​province"
+  },
+  {
+    "objectID": "posts/2021 Second-Hand Cars in South Africa/Index.html#data-preprocessing",
+    "href": "posts/2021 Second-Hand Cars in South Africa/Index.html#data-preprocessing",
+    "title": "South African Car Prices",
+    "section": "DATA PREPROCESSING",
+    "text": "DATA PREPROCESSING\nWe would like to fit a model to better understand the determinants of vehicle prices. Here, pre-processing is important is especially important. Tidymodels and the textrecipes offer a range of functions to handle the whole modelling workflow. Below, are a number of pre-processing steps, firstly we use the unnest_tokens function from the tidytext package to process the the car_name variable. Thereafter, we handle the numerical values by applying a logarithm to outcome variable and standardising mileage. Finally, we use step_tokenize, step_tokenfilter and step_tf to tokenise, filter the those tokens and ultimately convert the tokens to a term frequency variables.\n\n\nsee code\nUseful_Car_Names <- Car_Data %>% \n  unnest_tokens(car_name,\n                output=\"car_name\") %>% \n  group_by(vehicle_manufacturer,car_name) %>% \n  summarise(n(),.groups = \"drop\") %>% \n  arrange(desc(`n()`)) %>% \n  anti_join(stop_words %>% \n              rename(car_name=word)) %>% \n  filter(!str_detect(car_name,\"\\\\d{1,}\"))\n\nCar_Data <- Car_Data %>% \n  unnest_tokens(car_name,output = \"car_name\") %>% \n  semi_join(Useful_Car_Names %>% \n              select(car_name,vehicle_manufacturer)) %>%\n  group_by(across(-car_name)) %>% \n  summarise(car_name = as.character(list(c(car_name))),\n            .groups = \"drop\") %>% \n  mutate(car_name = str_replace(car_name,\n                                'c[[:punct:]]{2,}',\"\"),\n         car_name = str_replace_all(car_name,\n                                    '\\\\\"',\"\"),\n         car_name = str_replace_all(car_name,\n                                    '[[:punct:]]{1,}$',\"\"),\n         age = 2021-year)\nCar_Data <- Car_Data %>% \n  mutate(across(c(car_name,dealership,city_town),\n                .fns = as_factor))\n\nNew_Car_Data <- recipe(price ~ .,data = Car_Data) %>% \n  step_log(all_outcomes()) %>%\n  step_normalize(mileage) %>% \n  step_tokenize(c(dealership,city_town,car_name)) %>%\n  step_tokenfilter(c(dealership,city_town,car_name)) %>%\n  step_tf(c(dealership,city_town,car_name)) %>% \n  step_dummy(c(vehicle_manufacturer,province,\n               fuel_type,transmission)) %>% \n  step_nzv(all_predictors()) %>% \n  prep() %>% \n  bake(Car_Data)"
+  },
+  {
+    "objectID": "posts/2021 Second-Hand Cars in South Africa/Index.html#lasso-it-once-lasso-it-until-you-can-also-no-more",
+    "href": "posts/2021 Second-Hand Cars in South Africa/Index.html#lasso-it-once-lasso-it-until-you-can-also-no-more",
+    "title": "South African Car Prices",
+    "section": "LASSO IT ONCE, LASSO IT UNTIL YOU CAN ALSO NO MORE",
+    "text": "LASSO IT ONCE, LASSO IT UNTIL YOU CAN ALSO NO MORE\nThe resulting dataset contains 59417 rows across 27 variables. Given the dimension above, it prudent to do some additional feature select. LASSO regression helps with variable selection. In turn, we use the LASSO regression results to filter for the appropriate variables. The final variable set yields 24 predictor variables. The code below contains all details the LASSO implementation and subsequent filtering.\n\n\nsee code\nNew_Car_Data <- New_Car_Data %>%\n  select(-year)\n\nCar_split <- initial_split(New_Car_Data)\nCar_Training <- training(Car_split)\nCar_Test <- testing(Car_split)\n\nX <- model.matrix(price~.,Car_Training)[,-1]\nY <- Car_Training$price\nlasso_model <- glmnet(x = X,y=Y,\n       alpha=1)\n\nvariable_extractor <- function(a_list){\n  min_lambda <- data.frame(best_lambda =a_list[[\"lambda\"]]==min(a_list[[\"lambda\"]]))\n  min_lambda <- cbind.data.frame(data.frame(index = rownames(min_lambda)),\n                                 min_lambda)\n  min_lambda <- min_lambda %>% \n    filter(best_lambda == TRUE)\n  min_lambda <- as.double(unique(min_lambda$index))\n  lasso_variables <-\n    as.matrix(coef(a_list))|>data.frame()\n  \n  lasso_variables <- cbind.data.frame(variables = rownames(lasso_variables),\n                                      lasso_variables)\n  \n  lasso_variables <- tibble(lasso_variables)\n  lasso_variables <- lasso_variables[,c(1,min_lambda+1)]\n  names(lasso_variables) <- c(\"variable\",\"importance\")\n  lasso_variables <- lasso_variables %>% \n    filter(variable != \"(Intercept)\",\n           importance != 0.00000000) %>% \n    arrange(desc(importance))\n\n  return(lasso_variables)\n}\n\nVariables <- variable_extractor(lasso_model)\nCar_Training <- Car_Training[,c(\"price\",Variables$variable)]\nCar_Test <- Car_Test[,c(\"price\",Variables$variable)]"
+  },
+  {
+    "objectID": "posts/2021 Second-Hand Cars in South Africa/Index.html#cross-validation",
+    "href": "posts/2021 Second-Hand Cars in South Africa/Index.html#cross-validation",
+    "title": "South African Car Prices",
+    "section": "CROSS VALIDATION",
+    "text": "CROSS VALIDATION\nBefore fitting to the test dataset, it worth investigating whether our model performs well against “shuffled” dataset of our training data. Fortunately, tidymodels and parsnip contain several functions to assist with the exercise.\nHere, we use the vfold_cv function to split our training data into random splits of equal size. Next, we use workflow to fit a linear model on the random splits. Subsequently, we plot the r-squares across all the folds.\nUltimately, cross validation helps us understand the performance of our model set of datasets by iterating through the training and test sample of each fold. The code below illustrates an implementation of cross validation.\n\n\nsee code\nCar_Training_cv <- vfold_cv(Car_Training)\n\nlinear_model <- linear_reg() %>% \n  set_engine(\"lm\")\n\ncv_outcomes <- workflow() %>% \n  add_model(linear_model) %>% \n  add_formula(price ~.) %>% \n  fit_resamples(Car_Training_cv) %>% \n  select(id,.metrics) %>% \n  unnest(.metrics) %>% \n  filter(.metric == \"rsq\") %>% \n  select(id,.metric,.estimator,.estimate)\n\ncv_plot <- cv_outcomes %>%  \n  ggplot(aes(id,.estimate,group=1,fill=id))+\n  geom_col(show.legend = FALSE,alpha=0.8)+\n  geom_text(aes(label=round(.estimate,2)))+\n  coord_flip()+\n  labs(title = \"Cross Validation Results\",\n       subtitle = \"Car Prices Linear Model: R-Square across 10 folds\",\n       x=NULL,\n       y = \"R-Square\")+\n  theme(plot.title = element_text(family = \"Arial Narrow\",\n                                  hjust = 0.5),\n        plot.subtitle = element_text(family = \"Arial Narrow\",\n                                     hjust = 0.5,face = \"italic\"))"
+  },
+  {
+    "objectID": "posts/2022 Food Prices/index.html",
+    "href": "posts/2022 Food Prices/index.html",
+    "title": "2022 Food Prices: Part 1",
+    "section": "",
+    "text": "2020 - 2022 Price Changes\nPrice changes across six categories of foods: Eggs, Maize, Milk, Rice, Sunflower Oil and White Sugar\n\nData Source: Trundler API| Visualisation: Sivuyile Nzimeni| Date Extracted: 2022/06/01\n\n\n\n\n\n\n\n\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "posts/2022 State Capture Report 1/index.html",
+    "href": "posts/2022 State Capture Report 1/index.html",
+    "title": "State of Capture Commission Report Part 1: Notes",
+    "section": "",
+    "text": "CONCLUSION\nThis is the tip of the iceberg. There several specific allegation against Ms Dudu Myeni and Ms Kwinana. These will be discussed in subsequent summaries (trying to keep the word count below 1000). For now, it clear that State Capture was (or is) present at South African Airways. The following post will detail specific incidents of how State Capture took hold of the entity with specific reference to the conduct of Ms Dudu Myeni."
+  }
+]

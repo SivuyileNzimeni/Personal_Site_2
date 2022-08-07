@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.0.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Sivuyile Nzimeni">
+<meta name="dcterms.date" content="2022-02-28">
+<meta name="description" content="This post details the data scraping process for obtaining data from a South African online vehicle marketplate. In addition, the post shares the results of a linear regression model to estimate determinants of vehicle prices.">
+
+<title>Sivuyile Nzimeni - South African Car Prices</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-listing/list.min.js"></script>
+<script src="../../site_libs/quarto-listing/quarto-listing.js"></script>
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+<script>
+
+  window.document.addEventListener("DOMContentLoaded", function (_event) {
+    const listingTargetEl = window.document.querySelector('#listing-listing .list');
+    if (!listingTargetEl) {
+      // No listing discovered, do not attach.
+      return; 
+    }
+
+    const options = {
+      valueNames: [{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
+      
+      searchColumns: [],
+    };
+
+    window['quarto-listings'] = window['quarto-listings'] || {};
+    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
+
+    if (window['quarto-listing-loaded']) {
+      window['quarto-listing-loaded']();
+    }
+  });
+
+  window.addEventListener('hashchange',() => {
+    if (window['quarto-listing-loaded']) {
+      window['quarto-listing-loaded']();
+    }
+  })
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<meta name="twitter:title" content="Sivuyile Nzimeni - South African Car Prices">
+<meta name="twitter:description" content="This post details the data scraping process for obtaining data from a South African online vehicle marketplate. In addition, the post shares the results of a linear regression model to estimate determinants of vehicle prices.">
+<meta name="twitter:image" content="BMW_X3.jpg">
+<meta name="twitter:creator" content="@Sivu_Nzimeni">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Sivuyile Nzimeni</span>
+  </a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html">About</a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com/Sivu_Nzimeni"><i class="bi bi-twitter" role="img">
+</i> 
+ </a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/SivuyileNzimeni"><i class="bi bi-github" role="img">
+</i> 
+ </a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://za.linkedin.com/in/sivuyile-nzimeni-98006ba0"><i class="bi bi-linkedin" role="img">
+</i> 
+ </a>
+  </li>  
+</ul>
+              <div class="quarto-toggle-container">
+                  <a href="" class="quarto-color-scheme-toggle nav-link" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+              </div>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">South African Car Prices</h1>
+                  <div>
+        <div class="description">
+          This post details the data scraping process for obtaining data from a South African online vehicle marketplate. In addition, the post shares the results of a linear regression model to estimate determinants of vehicle prices.
+        </div>
+      </div>
+                          <div class="quarto-categories">
+                <div class="quarto-category">web-scraping</div>
+                <div class="quarto-category">data analysis</div>
+                <div class="quarto-category">data modelling</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Sivuyile Nzimeni </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">February 28, 2022</p>
+      </div>
+    </div>
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">INTRODUCTION</a></li>
+  <li><a href="#web-scraping" id="toc-web-scraping" class="nav-link" data-scroll-target="#web-scraping">WEB SCRAPING</a>
+  <ul class="collapse">
+  <li><a href="#importing-the-data" id="toc-importing-the-data" class="nav-link" data-scroll-target="#importing-the-data">IMPORTING THE DATA</a></li>
+  <li><a href="#data-preprocessing" id="toc-data-preprocessing" class="nav-link" data-scroll-target="#data-preprocessing">DATA PREPROCESSING</a></li>
+  <li><a href="#lasso-it-once-lasso-it-until-you-can-also-no-more" id="toc-lasso-it-once-lasso-it-until-you-can-also-no-more" class="nav-link" data-scroll-target="#lasso-it-once-lasso-it-until-you-can-also-no-more">LASSO IT ONCE, LASSO IT UNTIL YOU CAN ALSO NO MORE</a></li>
+  <li><a href="#cross-validation" id="toc-cross-validation" class="nav-link" data-scroll-target="#cross-validation">CROSS VALIDATION</a></li>
+  </ul></li>
+  <li><a href="#testing-performance-of-a-out-of-sample-set" id="toc-testing-performance-of-a-out-of-sample-set" class="nav-link" data-scroll-target="#testing-performance-of-a-out-of-sample-set">TESTING PERFORMANCE OF A OUT-OF-SAMPLE SET</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">CONCLUSION</a></li>
+  <li><a href="#reference" id="toc-reference" class="nav-link" data-scroll-target="#reference">REFERENCE</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+<section id="introduction" class="level1">
+<h1>INTRODUCTION</h1>
+<p>South Africa has a plethora of online vehicle marketplaces. Often, their pool of vehicles for sale are usually &gt; 50 000 on a daily basis. The vehicle listings offer a vast amount of car related data. Naturally, web-scraping the data provides an opportunity to fit a Machine-Learning model and endless exploration for petrol-heads (such as myself). Nearly all the online vehicle marketplaces have restrictive Terms and Conditions deterring the use of their data for commercial purposes and bombarding of their servers through web scrapping among other restrictions. Unfortunately, this means web scraping script cannot be shared in this post as it may reveal where the data were obtained, methodology of scraping the data etc. In addition, the website of the online vehicle marketplace will not be revealed.</p>
+</section>
+<section id="web-scraping" class="level1">
+<h1>WEB SCRAPING</h1>
+<p>To respect the Terms of Conditions, the scraping was throttled through the use of base R’s <code>rpois</code> function along with the <code>Sys.sleep()</code> function. Combining the two functions results in non-normal distribution of system sleep. System sleep essentially pauses R for the specified period. This step in the scrapping process is important to avoid sending to many requests to a website, perhaps, hoarding server capacity for other users. In this instance,scrapping all the webpages and pulling all listed vehicles on the day(2021-09-02), took 10 hours.</p>
+<div class="cell">
+<details>
+<summary>see code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>pause <span class="ot">&lt;-</span> <span class="cf">function</span>(){</span>
+<span id="cb1-2"><a href="#cb1-2"></a>  <span class="fu">Sys.sleep</span>(<span class="fu">rpois</span>(<span class="dv">1</span>,<span class="dv">60</span>))</span>
+<span id="cb1-3"><a href="#cb1-3"></a>  <span class="fu">print</span>(<span class="fu">paste0</span>(<span class="st">"Proceeding to the next page..."</span>))</span>
+<span id="cb1-4"><a href="#cb1-4"></a>  }</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<section id="importing-the-data" class="level2">
+<h2 class="anchored" data-anchor-id="importing-the-data">IMPORTING THE DATA</h2>
+<p>Below, we import the data and use <code>dplyr::glimpse</code> function to see the number of columns and values. The dataset contains a few important variables including the car_name and vehicle manufacturer. It is worth noting that the car_name variable appears to a free text field where the person listing the vehicle can modify the car name to include marketing terms such as: “excellent condition”,“reduce price” etc.</p>
+<div class="cell">
+<details>
+<summary>see code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>Car_Data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="at">file =</span><span class="st">"./2021-09-03_MANY_VEHICLES_Clean_Db.csv"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-2"><a href="#cb2-2"></a>  <span class="fu">clean_names</span>()</span>
+<span id="cb2-3"><a href="#cb2-3"></a></span>
+<span id="cb2-4"><a href="#cb2-4"></a><span class="fu">glimpse</span>(Car_Data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 62,196
+Columns: 10
+$ car_name             &lt;chr&gt; "9-3 Sport 2.0 Linear Lpt", "S40 2.0T", "V40 2.0"…
+$ vehicle_manufacturer &lt;chr&gt; "Saab", "Volvo", "Volvo", "Hyundai", "Volvo", "Ho…
+$ year                 &lt;dbl&gt; 2007, 1999, 2001, 2000, 2000, 1998, 1996, 1996, 2…
+$ mileage              &lt;dbl&gt; 200000, 285000, 271000, 125000, 190000, 267000, 1…
+$ price                &lt;dbl&gt; 13700, 18900, 18900, 20000, 20900, 21900, 21900, …
+$ fuel_type            &lt;chr&gt; "Petrol", "Petrol", "Petrol", "Petrol", "Petrol",…
+$ transmission         &lt;chr&gt; "Manual", "Manual", "Manual", "Manual", "Automati…
+$ dealership           &lt;chr&gt; "Mahala Motors", "WeBuyCars Midstream", "WeBuyCar…
+$ city_town            &lt;chr&gt; "Klerksdorp", "Centurion", "Cape Town", "Johannes…
+$ province             &lt;chr&gt; "North West Province", "Gauteng", "Western Cape",…</code></pre>
+</div>
+</div>
+<p>Similarly, the free text field, also means that vehicle naming conventions deviate from the vehicle manufacturer specifications. Other text variables also contain these anomalous changes in text. The code below demonstrates an example of idiosyncrasies.</p>
+<div class="cell">
+<details>
+<summary>see code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>Car_Data <span class="sc">%&gt;%</span> </span>
+<span id="cb4-2"><a href="#cb4-2"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(car_name,<span class="st">"condition"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 10
+  car_name  vehic…¹  year mileage  price fuel_…² trans…³ deale…⁴ city_…⁵ provi…⁶
+  &lt;chr&gt;     &lt;chr&gt;   &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt; &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;   &lt;chr&gt;  
+1 Focus Ex… Ford     2008  305000  69950 Petrol  Manual  Cars a… Brakpan Gauteng
+2 Utility … Chevro…  2015  198000 114900 Petrol  Manual  United… Boksbu… Gauteng
+3 Clio Exc… Renault  2019   55000 160000 Petrol  Manual  Bright… Johann… Gauteng
+4 Ranger E… Ford     2017  107000 299900 Diesel  Automa… Bright… Johann… Gauteng
+# … with abbreviated variable names ¹​vehicle_manufacturer, ²​fuel_type,
+#   ³​transmission, ⁴​dealership, ⁵​city_town, ⁶​province</code></pre>
+</div>
+</div>
+</section>
+<section id="data-preprocessing" class="level2">
+<h2 class="anchored" data-anchor-id="data-preprocessing">DATA PREPROCESSING</h2>
+<p>We would like to fit a model to better understand the determinants of vehicle prices. Here, pre-processing is important is especially important. <code>Tidymodels</code> and the <code>textrecipes</code> offer a range of functions to handle the whole modelling workflow. Below, are a number of pre-processing steps, firstly we use the <code>unnest_tokens</code> function from the <code>tidytext package</code> to process the the <code>car_name</code> variable. Thereafter, we handle the numerical values by applying a logarithm to outcome variable and standardising mileage. Finally, we use <code>step_tokenize</code>, <code>step_tokenfilter</code> and <code>step_tf</code> to tokenise, filter the those tokens and ultimately convert the tokens to a term frequency variables.</p>
+<div class="cell">
+<details>
+<summary>see code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>Useful_Car_Names <span class="ot">&lt;-</span> Car_Data <span class="sc">%&gt;%</span> </span>
+<span id="cb6-2"><a href="#cb6-2"></a>  <span class="fu">unnest_tokens</span>(car_name,</span>
+<span id="cb6-3"><a href="#cb6-3"></a>                <span class="at">output=</span><span class="st">"car_name"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-4"><a href="#cb6-4"></a>  <span class="fu">group_by</span>(vehicle_manufacturer,car_name) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-5"><a href="#cb6-5"></a>  <span class="fu">summarise</span>(<span class="fu">n</span>(),<span class="at">.groups =</span> <span class="st">"drop"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-6"><a href="#cb6-6"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(<span class="st">`</span><span class="at">n()</span><span class="st">`</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-7"><a href="#cb6-7"></a>  <span class="fu">anti_join</span>(stop_words <span class="sc">%&gt;%</span> </span>
+<span id="cb6-8"><a href="#cb6-8"></a>              <span class="fu">rename</span>(<span class="at">car_name=</span>word)) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-9"><a href="#cb6-9"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">str_detect</span>(car_name,<span class="st">"</span><span class="sc">\\</span><span class="st">d{1,}"</span>))</span>
+<span id="cb6-10"><a href="#cb6-10"></a></span>
+<span id="cb6-11"><a href="#cb6-11"></a>Car_Data <span class="ot">&lt;-</span> Car_Data <span class="sc">%&gt;%</span> </span>
+<span id="cb6-12"><a href="#cb6-12"></a>  <span class="fu">unnest_tokens</span>(car_name,<span class="at">output =</span> <span class="st">"car_name"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-13"><a href="#cb6-13"></a>  <span class="fu">semi_join</span>(Useful_Car_Names <span class="sc">%&gt;%</span> </span>
+<span id="cb6-14"><a href="#cb6-14"></a>              <span class="fu">select</span>(car_name,vehicle_manufacturer)) <span class="sc">%&gt;%</span></span>
+<span id="cb6-15"><a href="#cb6-15"></a>  <span class="fu">group_by</span>(<span class="fu">across</span>(<span class="sc">-</span>car_name)) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-16"><a href="#cb6-16"></a>  <span class="fu">summarise</span>(<span class="at">car_name =</span> <span class="fu">as.character</span>(<span class="fu">list</span>(<span class="fu">c</span>(car_name))),</span>
+<span id="cb6-17"><a href="#cb6-17"></a>            <span class="at">.groups =</span> <span class="st">"drop"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-18"><a href="#cb6-18"></a>  <span class="fu">mutate</span>(<span class="at">car_name =</span> <span class="fu">str_replace</span>(car_name,</span>
+<span id="cb6-19"><a href="#cb6-19"></a>                                <span class="st">'c[[:punct:]]{2,}'</span>,<span class="st">""</span>),</span>
+<span id="cb6-20"><a href="#cb6-20"></a>         <span class="at">car_name =</span> <span class="fu">str_replace_all</span>(car_name,</span>
+<span id="cb6-21"><a href="#cb6-21"></a>                                    <span class="st">'</span><span class="sc">\\</span><span class="st">"'</span>,<span class="st">""</span>),</span>
+<span id="cb6-22"><a href="#cb6-22"></a>         <span class="at">car_name =</span> <span class="fu">str_replace_all</span>(car_name,</span>
+<span id="cb6-23"><a href="#cb6-23"></a>                                    <span class="st">'[[:punct:]]{1,}$'</span>,<span class="st">""</span>),</span>
+<span id="cb6-24"><a href="#cb6-24"></a>         <span class="at">age =</span> <span class="dv">2021</span><span class="sc">-</span>year)</span>
+<span id="cb6-25"><a href="#cb6-25"></a>Car_Data <span class="ot">&lt;-</span> Car_Data <span class="sc">%&gt;%</span> </span>
+<span id="cb6-26"><a href="#cb6-26"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">c</span>(car_name,dealership,city_town),</span>
+<span id="cb6-27"><a href="#cb6-27"></a>                <span class="at">.fns =</span> as_factor))</span>
+<span id="cb6-28"><a href="#cb6-28"></a></span>
+<span id="cb6-29"><a href="#cb6-29"></a>New_Car_Data <span class="ot">&lt;-</span> <span class="fu">recipe</span>(price <span class="sc">~</span> .,<span class="at">data =</span> Car_Data) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-30"><a href="#cb6-30"></a>  <span class="fu">step_log</span>(<span class="fu">all_outcomes</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb6-31"><a href="#cb6-31"></a>  <span class="fu">step_normalize</span>(mileage) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-32"><a href="#cb6-32"></a>  <span class="fu">step_tokenize</span>(<span class="fu">c</span>(dealership,city_town,car_name)) <span class="sc">%&gt;%</span></span>
+<span id="cb6-33"><a href="#cb6-33"></a>  <span class="fu">step_tokenfilter</span>(<span class="fu">c</span>(dealership,city_town,car_name)) <span class="sc">%&gt;%</span></span>
+<span id="cb6-34"><a href="#cb6-34"></a>  <span class="fu">step_tf</span>(<span class="fu">c</span>(dealership,city_town,car_name)) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-35"><a href="#cb6-35"></a>  <span class="fu">step_dummy</span>(<span class="fu">c</span>(vehicle_manufacturer,province,</span>
+<span id="cb6-36"><a href="#cb6-36"></a>               fuel_type,transmission)) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-37"><a href="#cb6-37"></a>  <span class="fu">step_nzv</span>(<span class="fu">all_predictors</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-38"><a href="#cb6-38"></a>  <span class="fu">prep</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb6-39"><a href="#cb6-39"></a>  <span class="fu">bake</span>(Car_Data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="lasso-it-once-lasso-it-until-you-can-also-no-more" class="level2">
+<h2 class="anchored" data-anchor-id="lasso-it-once-lasso-it-until-you-can-also-no-more">LASSO IT ONCE, LASSO IT UNTIL YOU CAN ALSO NO MORE</h2>
+<p>The resulting dataset contains 59417 rows across 27 variables. Given the dimension above, it prudent to do some additional feature select. LASSO regression helps with variable selection. In turn, we use the LASSO regression results to filter for the appropriate variables. The final variable set yields 24 predictor variables. The code below contains all details the LASSO implementation and subsequent filtering.</p>
+<div class="cell">
+<details>
+<summary>see code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>New_Car_Data <span class="ot">&lt;-</span> New_Car_Data <span class="sc">%&gt;%</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a>  <span class="fu">select</span>(<span class="sc">-</span>year)</span>
+<span id="cb7-3"><a href="#cb7-3"></a></span>
+<span id="cb7-4"><a href="#cb7-4"></a>Car_split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(New_Car_Data)</span>
+<span id="cb7-5"><a href="#cb7-5"></a>Car_Training <span class="ot">&lt;-</span> <span class="fu">training</span>(Car_split)</span>
+<span id="cb7-6"><a href="#cb7-6"></a>Car_Test <span class="ot">&lt;-</span> <span class="fu">testing</span>(Car_split)</span>
+<span id="cb7-7"><a href="#cb7-7"></a></span>
+<span id="cb7-8"><a href="#cb7-8"></a>X <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(price<span class="sc">~</span>.,Car_Training)[,<span class="sc">-</span><span class="dv">1</span>]</span>
+<span id="cb7-9"><a href="#cb7-9"></a>Y <span class="ot">&lt;-</span> Car_Training<span class="sc">$</span>price</span>
+<span id="cb7-10"><a href="#cb7-10"></a>lasso_model <span class="ot">&lt;-</span> <span class="fu">glmnet</span>(<span class="at">x =</span> X,<span class="at">y=</span>Y,</span>
+<span id="cb7-11"><a href="#cb7-11"></a>       <span class="at">alpha=</span><span class="dv">1</span>)</span>
+<span id="cb7-12"><a href="#cb7-12"></a></span>
+<span id="cb7-13"><a href="#cb7-13"></a>variable_extractor <span class="ot">&lt;-</span> <span class="cf">function</span>(a_list){</span>
+<span id="cb7-14"><a href="#cb7-14"></a>  min_lambda <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">best_lambda =</span>a_list[[<span class="st">"lambda"</span>]]<span class="sc">==</span><span class="fu">min</span>(a_list[[<span class="st">"lambda"</span>]]))</span>
+<span id="cb7-15"><a href="#cb7-15"></a>  min_lambda <span class="ot">&lt;-</span> <span class="fu">cbind.data.frame</span>(<span class="fu">data.frame</span>(<span class="at">index =</span> <span class="fu">rownames</span>(min_lambda)),</span>
+<span id="cb7-16"><a href="#cb7-16"></a>                                 min_lambda)</span>
+<span id="cb7-17"><a href="#cb7-17"></a>  min_lambda <span class="ot">&lt;-</span> min_lambda <span class="sc">%&gt;%</span> </span>
+<span id="cb7-18"><a href="#cb7-18"></a>    <span class="fu">filter</span>(best_lambda <span class="sc">==</span> <span class="cn">TRUE</span>)</span>
+<span id="cb7-19"><a href="#cb7-19"></a>  min_lambda <span class="ot">&lt;-</span> <span class="fu">as.double</span>(<span class="fu">unique</span>(min_lambda<span class="sc">$</span>index))</span>
+<span id="cb7-20"><a href="#cb7-20"></a>  lasso_variables <span class="ot">&lt;-</span></span>
+<span id="cb7-21"><a href="#cb7-21"></a>    <span class="fu">as.matrix</span>(<span class="fu">coef</span>(a_list))<span class="sc">|&gt;</span><span class="fu">data.frame</span>()</span>
+<span id="cb7-22"><a href="#cb7-22"></a>  </span>
+<span id="cb7-23"><a href="#cb7-23"></a>  lasso_variables <span class="ot">&lt;-</span> <span class="fu">cbind.data.frame</span>(<span class="at">variables =</span> <span class="fu">rownames</span>(lasso_variables),</span>
+<span id="cb7-24"><a href="#cb7-24"></a>                                      lasso_variables)</span>
+<span id="cb7-25"><a href="#cb7-25"></a>  </span>
+<span id="cb7-26"><a href="#cb7-26"></a>  lasso_variables <span class="ot">&lt;-</span> <span class="fu">tibble</span>(lasso_variables)</span>
+<span id="cb7-27"><a href="#cb7-27"></a>  lasso_variables <span class="ot">&lt;-</span> lasso_variables[,<span class="fu">c</span>(<span class="dv">1</span>,min_lambda<span class="sc">+</span><span class="dv">1</span>)]</span>
+<span id="cb7-28"><a href="#cb7-28"></a>  <span class="fu">names</span>(lasso_variables) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"variable"</span>,<span class="st">"importance"</span>)</span>
+<span id="cb7-29"><a href="#cb7-29"></a>  lasso_variables <span class="ot">&lt;-</span> lasso_variables <span class="sc">%&gt;%</span> </span>
+<span id="cb7-30"><a href="#cb7-30"></a>    <span class="fu">filter</span>(variable <span class="sc">!=</span> <span class="st">"(Intercept)"</span>,</span>
+<span id="cb7-31"><a href="#cb7-31"></a>           importance <span class="sc">!=</span> <span class="fl">0.00000000</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb7-32"><a href="#cb7-32"></a>    <span class="fu">arrange</span>(<span class="fu">desc</span>(importance))</span>
+<span id="cb7-33"><a href="#cb7-33"></a></span>
+<span id="cb7-34"><a href="#cb7-34"></a>  <span class="fu">return</span>(lasso_variables)</span>
+<span id="cb7-35"><a href="#cb7-35"></a>}</span>
+<span id="cb7-36"><a href="#cb7-36"></a></span>
+<span id="cb7-37"><a href="#cb7-37"></a>Variables <span class="ot">&lt;-</span> <span class="fu">variable_extractor</span>(lasso_model)</span>
+<span id="cb7-38"><a href="#cb7-38"></a>Car_Training <span class="ot">&lt;-</span> Car_Training[,<span class="fu">c</span>(<span class="st">"price"</span>,Variables<span class="sc">$</span>variable)]</span>
+<span id="cb7-39"><a href="#cb7-39"></a>Car_Test <span class="ot">&lt;-</span> Car_Test[,<span class="fu">c</span>(<span class="st">"price"</span>,Variables<span class="sc">$</span>variable)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="cross-validation" class="level2">
+<h2 class="anchored" data-anchor-id="cross-validation">CROSS VALIDATION</h2>
+<p>Before fitting to the test dataset, it worth investigating whether our model performs well against “shuffled” dataset of our training data. Fortunately, <code>tidymodels</code> and <code>parsnip</code> contain several functions to assist with the exercise.</p>
+<p>Here, we use the <code>vfold_cv</code> function to split our training data into random splits of equal size. Next, we use <code>workflow</code> to fit a linear model on the random splits. Subsequently, we plot the r-squares across all the folds.</p>
+<p>Ultimately, cross validation helps us understand the performance of our model set of datasets by iterating through the training and test sample of each fold. The code below illustrates an implementation of cross validation.</p>
+<div class="cell">
+<details>
+<summary>see code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>Car_Training_cv <span class="ot">&lt;-</span> <span class="fu">vfold_cv</span>(Car_Training)</span>
+<span id="cb8-2"><a href="#cb8-2"></a></span>
+<span id="cb8-3"><a href="#cb8-3"></a>linear_model <span class="ot">&lt;-</span> <span class="fu">linear_reg</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb8-4"><a href="#cb8-4"></a>  <span class="fu">set_engine</span>(<span class="st">"lm"</span>)</span>
+<span id="cb8-5"><a href="#cb8-5"></a></span>
+<span id="cb8-6"><a href="#cb8-6"></a>cv_outcomes <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb8-7"><a href="#cb8-7"></a>  <span class="fu">add_model</span>(linear_model) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-8"><a href="#cb8-8"></a>  <span class="fu">add_formula</span>(price <span class="sc">~</span>.) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-9"><a href="#cb8-9"></a>  <span class="fu">fit_resamples</span>(Car_Training_cv) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-10"><a href="#cb8-10"></a>  <span class="fu">select</span>(id,.metrics) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-11"><a href="#cb8-11"></a>  <span class="fu">unnest</span>(.metrics) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-12"><a href="#cb8-12"></a>  <span class="fu">filter</span>(.metric <span class="sc">==</span> <span class="st">"rsq"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-13"><a href="#cb8-13"></a>  <span class="fu">select</span>(id,.metric,.estimator,.estimate)</span>
+<span id="cb8-14"><a href="#cb8-14"></a></span>
+<span id="cb8-15"><a href="#cb8-15"></a>cv_plot <span class="ot">&lt;-</span> cv_outcomes <span class="sc">%&gt;%</span>  </span>
+<span id="cb8-16"><a href="#cb8-16"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(id,.estimate,<span class="at">group=</span><span class="dv">1</span>,<span class="at">fill=</span>id))<span class="sc">+</span></span>
+<span id="cb8-17"><a href="#cb8-17"></a>  <span class="fu">geom_col</span>(<span class="at">show.legend =</span> <span class="cn">FALSE</span>,<span class="at">alpha=</span><span class="fl">0.8</span>)<span class="sc">+</span></span>
+<span id="cb8-18"><a href="#cb8-18"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label=</span><span class="fu">round</span>(.estimate,<span class="dv">2</span>)))<span class="sc">+</span></span>
+<span id="cb8-19"><a href="#cb8-19"></a>  <span class="fu">coord_flip</span>()<span class="sc">+</span></span>
+<span id="cb8-20"><a href="#cb8-20"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Cross Validation Results"</span>,</span>
+<span id="cb8-21"><a href="#cb8-21"></a>       <span class="at">subtitle =</span> <span class="st">"Car Prices Linear Model: R-Square across 10 folds"</span>,</span>
+<span id="cb8-22"><a href="#cb8-22"></a>       <span class="at">x=</span><span class="cn">NULL</span>,</span>
+<span id="cb8-23"><a href="#cb8-23"></a>       <span class="at">y =</span> <span class="st">"R-Square"</span>)<span class="sc">+</span></span>
+<span id="cb8-24"><a href="#cb8-24"></a>  <span class="fu">theme</span>(<span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">family =</span> <span class="st">"Arial Narrow"</span>,</span>
+<span id="cb8-25"><a href="#cb8-25"></a>                                  <span class="at">hjust =</span> <span class="fl">0.5</span>),</span>
+<span id="cb8-26"><a href="#cb8-26"></a>        <span class="at">plot.subtitle =</span> <span class="fu">element_text</span>(<span class="at">family =</span> <span class="st">"Arial Narrow"</span>,</span>
+<span id="cb8-27"><a href="#cb8-27"></a>                                     <span class="at">hjust =</span> <span class="fl">0.5</span>,<span class="at">face =</span> <span class="st">"italic"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="Index_files/figure-html/View_Results-1.png" class="img-fluid" width="566"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="testing-performance-of-a-out-of-sample-set" class="level1">
+<h1>TESTING PERFORMANCE OF A OUT-OF-SAMPLE SET</h1>
+<p>Our model had an mean r-square of 0.62. Indicating that 62% of the variation in vehicle prices is explained by the variables in our dataset. To test whether the r-square remains stable on an unseen dataset, we fit the model to our test sample. The table below illustrates the results of linear regression below.</p>
+<div class="cell">
+<div class="cell-output-display">
+
+<table style="border-collapse:collapse; border:none;">
+<tbody><tr>
+<th style="border-top: double; text-align:center; font-style:normal; font-weight:bold; padding:0.2cm;  text-align:left; ">&nbsp;</th>
+<th colspan="5" style="border-top: double; text-align:center; font-style:normal; font-weight:bold; padding:0.2cm; ">price</th>
+</tr>
+<tr>
+<td style=" text-align:center; border-bottom:1px solid; font-style:italic; font-weight:normal;  text-align:left; ">Predictors</td>
+<td style=" text-align:center; border-bottom:1px solid; font-style:italic; font-weight:normal;  ">Estimates</td>
+<td style=" text-align:center; border-bottom:1px solid; font-style:italic; font-weight:normal;  ">std. Beta</td>
+<td style=" text-align:center; border-bottom:1px solid; font-style:italic; font-weight:normal;  ">CI</td>
+<td style=" text-align:center; border-bottom:1px solid; font-style:italic; font-weight:normal;  ">standardized CI</td>
+<td style=" text-align:center; border-bottom:1px solid; font-style:italic; font-weight:normal;  ">p</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">(Intercept)</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">13.39</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.00</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">13.36&nbsp;–&nbsp;13.42</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.01&nbsp;–&nbsp;0.01</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "><strong>&lt;0.001</strong></td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">vehicle manufacturer<br>Mercedes Benz</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.34</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.13</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.31&nbsp;–&nbsp;0.37</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.12&nbsp;–&nbsp;0.14</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "><strong>&lt;0.001</strong></td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">vehicle manufacturer BMW</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.27</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.09</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.24&nbsp;–&nbsp;0.30</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.08&nbsp;–&nbsp;0.10</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "><strong>&lt;0.001</strong></td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">tf car name tsi</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.20</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.07</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.17&nbsp;–&nbsp;0.23</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.06&nbsp;–&nbsp;0.09</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "><strong>&lt;0.001</strong></td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">vehicle manufacturer<br>Toyota</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.20</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.11</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.18&nbsp;–&nbsp;0.23</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.10&nbsp;–&nbsp;0.12</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "><strong>&lt;0.001</strong></td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">tf car name double</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.13</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.05</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.09&nbsp;–&nbsp;0.17</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.04&nbsp;–&nbsp;0.07</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "><strong>&lt;0.001</strong></td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">vehicle manufacturer<br>Volkswagen</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.10</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.05</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.06&nbsp;–&nbsp;0.13</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.03&nbsp;–&nbsp;0.07</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "><strong>&lt;0.001</strong></td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">tf city town pretoria</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.01</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.01</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.01&nbsp;–&nbsp;0.03</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.00&nbsp;–&nbsp;0.02</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.159</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">vehicle manufacturer Ford</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.05</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.02</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.03&nbsp;–&nbsp;0.07</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.01&nbsp;–&nbsp;0.03</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "><strong>&lt;0.001</strong></td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">tf car name cab</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.02</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.01</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.02&nbsp;–&nbsp;0.05</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.01&nbsp;–&nbsp;0.02</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.329</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">mileage</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-1.39</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.18</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-1.51&nbsp;–&nbsp;-1.27</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.19&nbsp;–&nbsp;-0.16</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "><strong>&lt;0.001</strong></td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">vehicle manufacturer<br>Nissan</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.01</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.00</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.02&nbsp;–&nbsp;0.04</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.01&nbsp;–&nbsp;0.01</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.637</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">province Western Cape</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.01</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.01</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.03&nbsp;–&nbsp;0.01</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.02&nbsp;–&nbsp;0.00</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.273</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">tf dealership cars</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.00</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.00</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.02&nbsp;–&nbsp;0.02</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.01&nbsp;–&nbsp;0.01</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.781</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">province Kwazulu Natal</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.01</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.01</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.03&nbsp;–&nbsp;0.01</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.01&nbsp;–&nbsp;0.00</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.289</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">tf dealership motors</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.00</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.00</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.02&nbsp;–&nbsp;0.01</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.01&nbsp;–&nbsp;0.01</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">0.594</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">vehicle manufacturer<br>Hyundai</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.05</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.02</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.07&nbsp;–&nbsp;-0.02</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.03&nbsp;–&nbsp;-0.01</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "><strong>0.001</strong></td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">tf dealership toyota</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.09</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.03</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.11&nbsp;–&nbsp;-0.06</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.04&nbsp;–&nbsp;-0.02</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "><strong>&lt;0.001</strong></td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">tf car name dr</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.09</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.04</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.11&nbsp;–&nbsp;-0.07</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.05&nbsp;–&nbsp;-0.03</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "><strong>&lt;0.001</strong></td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">age</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.06</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.41</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.06&nbsp;–&nbsp;-0.06</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.42&nbsp;–&nbsp;-0.39</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "><strong>&lt;0.001</strong></td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">tf city town johannesburg</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.14</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.06</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.16&nbsp;–&nbsp;-0.12</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.07&nbsp;–&nbsp;-0.05</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "><strong>&lt;0.001</strong></td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">tf car name polo</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.11</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.05</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.15&nbsp;–&nbsp;-0.08</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.07&nbsp;–&nbsp;-0.04</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "><strong>&lt;0.001</strong></td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">tf car name auto</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.29</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.22</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.31&nbsp;–&nbsp;-0.27</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.23&nbsp;–&nbsp;-0.20</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "><strong>&lt;0.001</strong></td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">fuel type Petrol</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.40</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.27</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.42&nbsp;–&nbsp;-0.38</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.28&nbsp;–&nbsp;-0.26</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "><strong>&lt;0.001</strong></td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; ">transmission Manual</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.70</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.51</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.73&nbsp;–&nbsp;-0.68</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  ">-0.53&nbsp;–&nbsp;-0.50</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:center;  "><strong>&lt;0.001</strong></td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm; border-top:1px solid;">Observations</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left; border-top:1px solid;" colspan="5">14855</td>
+</tr>
+<tr>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; text-align:left; padding-top:0.1cm; padding-bottom:0.1cm;">R<sup>2</sup> / R<sup>2</sup> adjusted</td>
+<td style=" padding:0.2cm; text-align:left; vertical-align:top; padding-top:0.1cm; padding-bottom:0.1cm; text-align:left;" colspan="5">0.678 / 0.677</td>
+</tr>
+
+</tbody></table>
+
+</div>
+</div>
+<p>According to the results above, statistically significant variables include the vehicle manufacturer, vehicle name,vehicle age,transmission_type and fuel_type. Top among these are Mercedes Benz, BMW,Toyota and Volkswagen. Vehicles with the terms such as: “tsi”,“double”,“cab”,“dr” and “auto”. Interesting, “tsi” is a fuel type designation among Volkswagen group vehicles. Similarly, “double” and “cab” usually denote the bakkie (pickup truck) segment in South Africa. Other vehicle segment key word is “dr” which usually indicate a coupe or two-door saloon vehicle.</p>
+</section>
+<section id="conclusion" class="level1">
+<h1>CONCLUSION</h1>
+<p>In example, we have found the determinants of vehicle prices from the scraped dataset. The results are in line with vehicle sales in South Africa. Mercedes Benz, BMW, Toyota and Volkswagen, Ford and Hyundai vehicles constantly feature among top selling vehicles in South Africa. As expected, vehicle age and vehicle mileage are statistically significant factors that influence prices. To enhance the analysis, it may be worthwhile to scrape more variables such as vehicle description, listing date, options list, vehicle conditions and colour.</p>
+</section>
+<section id="reference" class="level1">
+<h1>REFERENCE</h1>
+<p>Wickham et al.,2019. Welcome to the tidyverse. Journal of Open Source Software, 4(43), 1686, https://doi.org/10.21105/joss.01686</p>
+<p>Sam Firke, 2021. janitor: Simple Tools for Examining and Cleaning Dirty Data. R package version 2.1.0. https://CRAN.R-project.org/package=janitor</p>
+<p>Hadley Wickham and Jennifer Bryan, 2019. readxl: Read Excel Files. R package version 1.3.1. https://CRAN.R-project.org/package=readxl</p>
+<p>Jeroen Ooms, 2021. writexl: Export Data Frames to Excel ‘xlsx’ Format. R package version 1.4.0. https://CRAN.R-project.org/package=writexl</p>
+<p>Jeffrey B. Arnold. 2021. ggthemes: Extra Themes, Scales and Geoms for ‘ggplot2’. R package version 4.2.4. https://CRAN.R-project.org/package=ggthemes</p>
+<p>Kuhn et al., 2020. Tidymodels: a collection of packages for modeling and machine learning using tidyverse principles. https://www.tidymodels.org</p>
+<p>Emil Hvitfeldt. 2021. textrecipes: Extra ‘Recipes’ for Text Processing. R package version 0.4.1. https://CRAN.R-project.org/package=textrecipes</p>
+<p>Silge J, Robinson, D. 2016. “tidytext: Text Mining and Analysis Using Tidy Data Principles in R.” <em>JOSS</em>, <em>1</em>(3). doi: 10.21105/joss.00037. https://doi.org/10.21105/joss.00037</p>
+<p>Jerome Friedman, Trevor Hastie, Robert Tibshirani. 2010. Regularization Paths for Generalized Linear Models via Coordinate Descent. Journal of Statistical Software, 33(1), 1-22. https://www.jstatsoft.org/v33/i01/</p>
+<p>Julia Silge, Fanny Chow, Max Kuhn and Hadley Wickham. 2021. rsample: General Resampling Infrastructure. R package version 0.1.1. https://CRAN.R-project.org/package=rsample</p>
+<p>Max Kuhn and Davis Vaughan (2021). parsnip: A Common API to Modeling and Analysis Functions. https://parsnip.tidymodels.org, https://github.com/tidymodels/parsnip</p>
+<p>Lüdecke D. 2021. <em>sjPlot: Data Visualization for Statistics in Social Science</em>. R package version 2.8.10. https://CRAN.R-project.org/package=sjPlot</p>
+<p>Lüdecke D. 2021. <em>sjlabelled: Labelled Data Utility Functions (Version 1.1.8)</em>. doi: 10.5281/zenodo.1249215. https://doi.org/10.5281/zenodo.1249215.</p>
+
+
+
+</section>
+
+<div class="quarto-listing quarto-listing-container-default" id="listing-listing">
+<div class="list quarto-listing-default">
+
+</div>
+<div class="listing-no-matching d-none">
+No matching items
+</div>
+</div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  let localAlternateSentinel = 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } 
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    setTimeout(function() {
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
