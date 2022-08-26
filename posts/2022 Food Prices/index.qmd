@@ -3,7 +3,7 @@ title: "2022 Food Prices: Part 1"
 image: "./Food_Basket.jpg"
 author: "Sivuyile Nzimeni"
 date: "June 4, 2022"
-description: "This explores 2020 - 2022 Food Prices in South Africa"
+description: "This post explores 2020 - 2022 Food Prices in South Africa"
 categories: [news, API, table]
 listing: 
   contents: posts
