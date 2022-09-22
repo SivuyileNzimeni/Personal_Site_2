@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/2022 Eskom Capacity/index.html",
       "/posts/2022 Food Prices/index.html",
       "/posts/2021 Second-Hand Cars in South Africa/Index.html",
       "/posts/2022 State Capture Report 1/index.html",
@@ -19,6 +20,10 @@
   },
   {
     "listing": "/posts/2021 Second-Hand Cars in South Africa/Index.html",
+    "items": []
+  },
+  {
+    "listing": "/posts/2022 Eskom Capacity/index.html",
     "items": []
   },
   {
