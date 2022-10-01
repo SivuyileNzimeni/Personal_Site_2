@@ -3,12 +3,12 @@ title: "2022 Eskom Unavailabe Capacity"
 image: "./Eskom_Logo.jpg"
 date: "September 22,2022"
 author: "Sivuyile Nzimeni"
-description: "Rolling Blackouts have been a staple of the South African economy since 2008. In this post, we visualise the an aggregate of Eskom's unavailable capacity variables."
+description: "Visualising Unavailable Energy in South Africa from 2018 to 2022."
 categories: [news,API,visualisation]
 listing:
   contents: post
 execute: 
-  echo: false
+  echo: true
   warning: false
 bibliography: references.bib
 ---
@@ -30,8 +30,7 @@ knitr::opts_chunk$set(echo = FALSE,
 library(tidyverse)
 library(janitor)
 library(lubridate)
-library(ggthemes)
-library(tidyquant)
+library(echarts4r)
 ```
 
 The first task of analysing the dataset is to understand it's structure. In the Eskom bulk data contains several dimensions including energy generation, energy generation sources, energy demand and energy supply and importantly Capacity Loss data. Capacity Loss is measured by numerous variables depending on the type of loss. Below, the Eskom Data Portal provides an glossary of variable definitions. This analysis will focus on Capacity Loss Factor which is a measure of unavailable energy capacity.
@@ -63,12 +62,13 @@ Unavailable_Capacity <- lapply(Unavailable_Capacity,data.frame)
 
 ## CANDLES
 
-Visualising a large time-series dataset is challenging. Fortunately, the world of finance has solved this problem. Candlestick charts are popular financial charts which provide a succinct view of daily share price movement. They provide a daily distribution of share price activity, i.e, candle charts are modified small box plots. As usual, @wickham2022 's set of packages have all the tools required to clean data and visualise the data. In this case, @dancho2022 's `tidyquant` package offers `geom_candlestick` function which coupled with `ggplot2` can help render candlestick charts. Prior to plotting the visualisation, we create a data.frame with all required columns, namely, Unavailable Capacity Loss Factor at Open, Low and High.
+Visualising a large time-series dataset is challenging. Fortunately, the world of finance has solved this problem. Candlestick charts are popular financial charts which provide a succinct view of daily share price movement. They provide a daily distribution of share price activity i.e, candle charts are modified small box plots. As usual, @wickham2022 's set of packages have all the tools required to clean data and visualise the data. Here, we ideally want to use an interactive visualisation. Naturally, @rcoreteam2022 has several packages to implement this type of visualisation. In this post, we rely on @coene2022 interpretation of the echarts package in JavaScript through `echarts4r` R package. Prior to plotting the visualisation, we create a data.frame with all required columns, namely, Unavailable Capacity Loss Factor at Open, Low and High.
 
 In the code chunk below, we create function which takes a function, finds all the unique date in the dataset along with the variables required to plot the candlestick chart. The function returns a data.frame. The `candle_data` function is applied to the list of unique dates through `lapply` and `do.call` to finalise the dataset.
 
 ```{r Data_Extractor}
 #| include: true
+#| echo: true
 candle_data <- function(a_df){
   date <- a_df$date |> unique()
   Open <- a_df[a_df$date_time_hour_beginning == min(a_df$date_time_hour_beginning),"unavailable_capacity_loss"][1]
@@ -93,55 +93,22 @@ Candles$date <- ymd(Candles$date)
 
 ### THESE CANDLESTICKS DON'T REQUIRE LOADSHEDDING
 
+The candlestick chart covers the full period from 2018 - 2022, it can be hard to interpret the chart for the period. And there is a plethora of complicated ways to interpret candlestick charts, that is a discussion for another day. For now, there is one glaring fact about the Unavailable Capacity Loss Factor, in each year it tests new highs. In simple terms, South Africa's energy crisis is worsening. To narrow the time span and gain a more granular view of the data, one can use the slider on the visualisation below. You can also download the visualisation by clicking on the download icon.
+
 ```{r Data_Viz}
 #| include: true
 #| fig-alt: 2018 - 2022 Unavailable Capacity Loss Factor candlestick chart illustrating new highs in unavailable throughout the period to 2022. 
-Candles |>
-  na.omit() |> 
-  ggplot(aes(x=date, y = Close))+
-  geom_candlestick(
-    aes(open = Open, high = High, low = Low, close = Close))+
-  scale_x_date(breaks="9 month")+
-  labs(title = "2018 - 2022 Unavailable Capacity Loss Factor",
-       subtitle = paste0("Unavailable Capacity Loss Factor: aggregate of total planned capacity loss factor,\n total unplanned capacity loss factor\n and total other capacity loss factor"),
-       y = "UCLF at Close",
-       x= "Date",
-       caption = paste0("UCLF Close is defined as the last loss factor on the day."))+
-  theme_clean()+
-  theme(plot.title = element_text(hjust=0.5,face = "bold"),
-        plot.subtitle = element_text(hjust=0.5,size=8,
-                                     face = "italic"),
-        plot.caption = element_text(hjust=0.5,face="italic",
-                                    size = 6),
-        panel.background = NULL)
-```
-
-There are many complicated ways to analyse candlestick charts, that is a discussion for another day. For now, we are interested in tracking the general direction of the Unavailable Capacity Loss Factor. In short, the capacity unavailability has been increasing from 2018 to 2022. Throughout the period, there are new highs in unavailability indicating a worsening situation. If we zoom into 2022, the trend continues, confirming the depths of South Africa's energy crisis.
-
-```{r 2022_Zoom}
-#| include: true
-#| fig-alt: 2022 Unavailable Loss Factor candlestick chart for the period June 2022 to September 2022. In line with the earlier plot, there are new highs in the period for Unavailable Capacity Loss Factor indicator.
-Candles |>
-  na.omit() |> 
-  filter(date > ymd("2022-06-01")) |> 
-  ggplot(aes(x=date, y = Close))+
-  geom_candlestick(
-    aes(open = Open, high = High, low = Low, close = Close))+
-  scale_x_date(breaks="1 month")+
-   labs(title = "2022 Unavailable Capacity Loss Factor",
-       subtitle = paste0("Unavailable Capacity Loss Factor: aggregate of total planned capacity loss factor,\n total unplanned capacity loss factor\n and total other capacity loss factor"),
-       y = "UCLF at Close",
-       x= "Date",
-       caption = paste0("UCLF Close is defined as the last loss factor on the day."))+
-  theme_clean()+
-  theme(plot.title = element_text(hjust=0.5,face = "bold"),
-        plot.subtitle = element_text(hjust=0.5,size=8,
-                                     face = "italic"),
-        plot.caption = element_text(hjust=0.5,face="italic",
-                                    size = 6),
-        panel.background = NULL)
+Candles$date <- as.character(Candles$date)
+Candles |> 
+  e_charts(date) |> 
+  e_candle(opening = Open,closing = Close, low =Low,
+           high = High) |> 
+  e_datazoom(type= "slider") |> 
+  e_title("2019 - 2022 Unavailable Capacity Loss Factor",
+          "Source: Eskom Data Portal") |> 
+  e_toolbox_feature(feature="dataZoom")
 ```
 
 # CONCLUSION
 
-In this post, we visualised data Capacity Loss Factor data from Eskom. The goal was visualisation, a more detailed analysis would employ time series analysis approaches such as Wavelet, Long-Term Memory Processes and myriad of other modelling approaches. @woodwardwayne provide a detailed treatment of applied time series analysis in R. Fortunately, the energy crisis at Eskom is sufficiently glaring as to require no sophisticated analysis.
+In this post, we visualised data Capacity Loss Factor data from Eskom. The goal was visualisation, a more detailed analysis would employ time series analysis to determine the whether the data is stationary or non-stationary, selecting the appropriate filters etc. @woodwardwayne provides a detailed treatment of applied time series analysis in R. Fortunately, the energy crisis at Eskom is sufficiently glaring as to require no sophisticated analysis.
