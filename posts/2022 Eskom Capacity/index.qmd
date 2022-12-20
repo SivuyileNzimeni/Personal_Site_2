@@ -17,7 +17,7 @@ bibliography: references.bib
 
 In late 2007, Eskom- South Africa's electricity public utility, announced a rolling Blackout programme to mitigate the risk of a national electricity grid collapse. Fifteen years later, the programme, euphemistically named 'loadshedding', persists. The energy provider has failed to provide a sufficient supply of energy to meet demand in their domestic markets. In fact, according to @bloomberg the energy crisis has worsened, 2022 has already had 100 days of rolling Blackouts.
 
-Of course, there are a plethora of reasons that explain the crisis including, corruption, political interference, political inaction, poor corporate governance, financial mismanagement and many others (see @grootes2019 ). With the aforementioned context in mind, it worth exploring some data to form a more comprehensive understanding of the status of energy supply in the country.
+Of course, there are a plethora of reasons that explain the crisis including, corruption, political interference, political inaction, poor corporate governance, financial mismanagement and many others (see @grootes2019 ). With the aforementioned context in mind, it worth exploring some data to form a more detailed understanding of the status of energy supply in the country.
 
 ## ESKOM Data Portal
 
