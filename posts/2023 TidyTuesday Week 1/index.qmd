@@ -1,0 +1,184 @@
+---
+title: "2023 TidyTuesday Week 1"
+image: "download.jpg"
+image-alt: "Choropleth map of election results in South Africa in 2021"
+lang: "en-GB"
+date: "January 06,2022"
+author: "Sivuyile Nzimeni"
+description: "Visualising Spatial Data in R using data from the IEC and Municipal Dermacation Board in South Africa."
+categories: [spatial data,data cleaning,visualisation]
+fig-dpi: 300
+fig-align: 'center'
+fig-cap-location: 'top'
+code-copy: true
+code-line-numbers: true
+page-layout: 'article'
+cap-location: 'margin'
+number-sections: true
+toc: true
+toc-title: 'CONTENTS'
+listing:
+  contents: post
+execute: 
+  echo: true
+  warning: false
+bibliography: references.bib
+---
+
+# INTRODUCTION
+
+It has a been more than a year since, I published a [#TidyTuesday](https://github.com/rfordatascience/tidytuesday) submission, a weekly, data visualisation activity featuring a varied range of datasets. For the first week of 2023, the activity encourages participants to Bring their own data. Fortunately, I have been seating on a dataset from @independentelectoralcommissionofsouthafrica2023 containing the 2021 Local Government Election Results. The dataset is detailed, including results down to voting station level. The IEC also provides a data dictionary along with detailed methodology on how the results can be interpreted. We aren't here to reproduce that process (that is for another day). We simply want to enhance the visualisation of the results.
+
+```{r Libraries}
+lapply(c("tidyverse","janitor","arrow",
+         "sf","ggthemes","showtext",
+         "leaflet"),
+       require,character.only = TRUE) |> 
+  suppressWarnings() |> 
+  suppressMessages()
+font_add_google("IBM Plex Sans")
+showtext_auto()
+```
+
+# IMPORTANT DATA ASPECTS
+
+In South Africa, the @municipaldemarcationboard2023 , is the body responsible for the demarcation of South Africa into multiple levels such as District Municipalities, Metropolitan Municipalities, Local Municipalities and Voting Districts. In Local Government Elections, these demarcations in turn, determine seat allocation and across all types of municipalities.
+
+There important nuances in respect to the Local Government Elections voting ballots; such as direct (Ward-level vote) and indirect votes(proportional representation). For purposes of this analysis, we will rely on illustrating voting outcomes at ward level. In effect, we have two datasets to work with, 2020 Municipal Demarcation Board ShapeFile and 2021 Local Government Election Results (Comma-Separated File).
+
+Wrangling spatial data is made easy by the `sf` package ( @pebesma2022 ). The voting results can be wrangled and joined to the `sf` object through the `dplyr` package ( @wickham2022 ). Since this is R, there are a plethora of data visualisation packages to utilise as well. Here, we chiefly rely on two, `ggplot2` and `leaflet`. The first can be used to create static maps while the latter offers a great set of tools for interactive visualisations. Below, we illustrate the process of importing that spatial data into R along with the csv of election results.
+
+```{r Import_Data}
+SA_Wards <- st_read("./2020_Spatial_Data/SA_Wards2020.shp")
+
+Election_Results <- read_parquet(file = "./Final_Dbs/2016 - 2021_Local_Gov_Election_Results_2022-04-27.parquet") |>
+  filter(election_year == 2021)
+
+glimpse(Election_Results)
+```
+
+As mentioned above, we are only interested in Ward Ballot results, as a result, we filter out all indirect ballot types. Thereafter, we group the data by Province, Municipality and Ward and derive a sum of all valid votes. In other words, we exclude spoilt votes and do not consider voter turn out extra. We store the result in a data-frame called \`Total \_Votes\`. As the name implies, the data-frame contains a sum of total valid votes per ward. Below, we add an additional variable, party-name, which helps us tally all the votes cast for a particular party or independent cast per ward. Finally, we filter for the maximum votes accumulated by the party/independent per ward.
+
+```{r Implement_Selection}
+Total_Votes <- Election_Results |>
+  filter(ballot_type == "Ward") |> 
+  group_by(across(.cols=c(province,municipality,ward))) |> 
+  summarise(total_votes = sum(total_valid_votes),
+            .groups = "drop")
+
+Ward_Results <-  Total_Votes |> 
+  left_join(Election_Results |> 
+              filter(ballot_type == "Ward") |>   
+  group_by(across(.cols=c(ward,party_name))) |> 
+  summarise(party_votes= sum(total_valid_votes)) |>
+    filter(party_votes == max(party_votes)) |> 
+    ungroup()) |> 
+  mutate(support = 100/total_votes*party_votes)
+
+glimpse(Ward_Results)
+```
+
+To finalise the ward results, the two data-frames are joined. Ultimately, we have a data-frame with the winner of the ward. To visualise the data, we join the spatial data to the ward results data-frame.
+
+```{r Ward_Results_to_SF}
+Ward_Results <- left_join(SA_Wards,Ward_Results |>
+  mutate(ward = str_remove(ward,"Ward\\s{1,}")) |> 
+  rename(WardID = ward) |> 
+  select(-province))
+```
+
+Before completing our first visualisation, there are some mopping up required. These are mainly for aesthetic in nature, such as importing hex codes for each political party which largely resembles the respective party's corporate colour and grouping colours for smaller parties ($parties with wards < 2$).
+
+```{r Mop-Up}
+Descriptives_Results <- read_csv(file = "./Final_Dbs/2021_Party_Results_Descriptives_2023-01-06.csv")%>% 
+  sapply(.,as.character)%>%
+  data.frame()
+
+Descriptives_Results$occurence <- as.integer(Descriptives_Results$occurence)
+
+Other_Politics <- paste(Descriptives_Results[Descriptives_Results$occurence <=2,"party_name"],
+      collapse = ",")
+
+Ward_Results <- Ward_Results |>
+  mutate(party_name = case_when(party_name %in% c("AL JAMA-AH,KAROO GEMEENSKAP PARTY","TEAM SUGAR SOUTH AFRICA","UMSOBOMVU RESIDENTS ASSOCIATION","ACTIONSA,AZANIA RESIDENT PARTY","BREEDEVALLEI ONAFHANKLIK","CAPRICORN INDEPENDENT COMMUNITY ACTIVISTS FORUM","CEDERBERG FIRST RESIDENTS ASSOCIATION","DIENSLEWERINGS PARTY","FORUM 4 SERVICE DELIVERY","INDEPENDENT SOUTH AFRICAN NATIONAL CIVIC ORGANISATION","LAND PARTY,NAMAKWA CIVIC MOVEMENT","PLETT DEMOCRATIC CONGRESS","SIYATHEMBA COMMUNITY MOVEMENT","TSOGANG CIVIC MOVEMENT,UNITED DEMOCRATIC MOVEMENT"
+) ~ "OTHER",
+                                TRUE ~ party_name))
+
+Wards_Plot <- Ward_Results |> 
+ggplot()+
+  geom_sf(aes(fill = party_name),colour="black")+
+  scale_fill_manual(values = 
+                      c("AFRICAN NATIONAL CONGRESS"= "#FFD700",
+              "DEMOCRATIC ALLIANCE"= "#00008B",
+              "INKATHA FREEDOM PARTY"="#FFFF00",
+              "INDEPENDENT"="#90EE90",
+              "ECONOMIC FREEDOM FIGHTERS"="#8b0000",
+              "MAPSIXTEEN CIVIC MOVEMENT"="#9F2B68",
+              "NATIONAL FREEDOM PARTY"="#808080",
+              "VRYHEIDSFRONT PLUS"="#FFA500",
+              "PATRIOTIC ALLIANCE"="#39FF14",
+              "ABANTU BATHO CONGRESS"="#ADD8E6",
+              "AFRICAN PEOPLE'S MOVEMENT"="#FFFFE0",
+              "GOOD"="#F5E236",
+              "INDEPENDENT CIVIC ORGANISATION OF SOUTH AFRICA"="#FA1138",
+              "SETSOTO SERVICE DELIVERY FORUM"="#A5FA11",
+              "AL JAMA-AH"= "#334A05",
+              "KAROO GEMEENSKAP PARTY"="#5BF5A3",
+              "TEAM SUGAR SOUTH AFRICA"="#F2FF03",
+              "UMSOBOMVU RESIDENTS ASSOCIATION"="#141212",
+              "OTHER" = "#FFC0CB"))+
+  labs(title = "2021 Local Government Election Results",
+       subtitle = "Ballot Type (Ward): Winning Party per ward in the 2021 South African Local Government Elections.\nThe results do not include other ballot types such as DC 40% or Proportional Representation.",
+       caption = "Data Source: https://www.elections.org.za/\nPlot: Sivuyile Nzimeni(sivuyilenzimeni.netlify.app)",
+       fill = "Party Name")+
+  theme_void()+
+  theme(text = element_text("IBM Plex Sans"),
+        plot.title =element_text(hjust=0.5,face = "bold"),
+        plot.subtitle = element_text(hjust = 0.5,face = "italic"),
+        plot.caption = element_text(hjust=0.8,face = "italic"),
+        legend.position = "bottom")
+
+Ward_Results <-Ward_Results |> 
+  left_join(Descriptives_Results |> select(-occurence))
+
+Ward_Results <- Ward_Results |> 
+  mutate(overview = paste0("<strong>",Province,"</strong>","<br/>",
+                              "<strong>",Municipali,"</strong>","<br/>",
+                              '<strong>Ward ID</strong>',"<br/>",WardID,"<br/>",
+                              "<strong>Winner</strong>:",party_name,"<br/>",
+                              "<strong>Support</strong>: ",round(support,2),"%"),
+         colour = str_trim(colour))
+
+Ward_Results <- Ward_Results |> 
+  mutate(overview = lapply(overview,htmltools::HTML)) |> 
+  unnest(overview)
+```
+
+# VISUALISATION
+
+```{r Wards_Plotting}
+#| label: 2021 LGE Results ward results
+#| fig-caption: A map containing all the 4468 wards in South Africa along with the winning parties in the last LGE. 
+#| fig-width: 10
+#| fig-height: 12
+
+Wards_Plot
+```
+
+The resulting static visualisation illustrates that the African National Congress (ANC) won the majority of wards in South Africa followed by the Democratic Alliance (DA) in some urban areas. The visualisation above has be read in context.
+
+1.  **Land does not vote**: the composition of wards is influenced by several factors such as population density, level of development, natural landscape etc. As such, it is possible to have a large ward (by land size) with minimal low density and vice versa.
+2.  **Ward-Outcomes are partial**: in Local Government Elections, voters have at least two ballots, direct votes and indirect votes. For Example, ActionSA obtained one ward in the 2021 LGE, they obtained more than 50 seats in the provinces where they competed.
+3.  **Rigour**: for a more comprehensive analysis, spatial econometrics offers a number of tools to help understand voting patterns over time. Naturally, the datasets required would need to be expanded to include Statistics South Africa (Census), previous voting patterns (IEC) and former demarcations (MDB).
+
+::: callout-important
+## Rendering Issue
+
+R has several packages for interactive visualisation. In the code, we attempted to use leaflet to render the interactive visualisation. The size of the data appears to be a hindrance, instead generating an error `Fatal javascript OOM in Reached heap limit`. Other users have experienced this issue. Follow [Issue 2462](https://github.com/quarto-dev/quarto-cli/issues/2462) for more information and progress on the issue.
+
+The rendering works locally. The script above provides the cleaning process before creating an interactive map in \`leaflet\` or another interactive visualisation library.
+:::
+
+# SUMMARY
+
+In the post, we imported a spatial data file from MDB along with election results from the IEC. Ward-Level outcomes are visualised through a choropleth map.
