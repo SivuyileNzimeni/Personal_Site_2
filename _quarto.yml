@@ -21,7 +21,6 @@ website:
         href: "https://za.linkedin.com/in/sivuyile-nzimeni-98006ba0"
 format:
   html:
-    mainfont: sans-serif("IBM Plex Sans")
     code-overflow: wrap
     code-copy: true
     code-fold: true
