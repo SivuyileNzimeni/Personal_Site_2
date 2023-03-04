@@ -3,7 +3,7 @@ title: "2023 TidyTuesday Week 1"
 image: "download.jpg"
 image-alt: "Choropleth map of election results in South Africa in 2021"
 lang: "en-GB"
-date: "January 06,2022"
+date: "January 06,2023"
 author: "Sivuyile Nzimeni"
 description: "Visualising Spatial Data in R using data from the IEC and Municipal Dermacation Board in South Africa."
 categories: [spatial data,data cleaning,visualisation]
