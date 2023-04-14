@@ -1,0 +1,1990 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en-GB" xml:lang="en-GB"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.90">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Sivuyile Nzimeni">
+<meta name="dcterms.date" content="2023-04-14">
+<meta name="description" content="Chapter 8 of Analysing US Census Data Methods, Maps and Models in R. In this post, we work through the code contained in the above-mentioned book. This chapter is important as includes sections on spatial feature engineering, modelling and visualisation.">
+
+<title>Sivuyile Nzimeni - 2023 Spatial Data Analysis</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { color: #008000; } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { color: #008000; font-weight: bold; } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-listing/list.min.js"></script>
+<script src="../../site_libs/quarto-listing/quarto-listing.js"></script>
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+<script>
+
+  window.document.addEventListener("DOMContentLoaded", function (_event) {
+    const listingTargetEl = window.document.querySelector('#listing-listing .list');
+    if (!listingTargetEl) {
+      // No listing discovered, do not attach.
+      return; 
+    }
+
+    const options = {
+      valueNames: [{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
+      
+      searchColumns: [],
+    };
+
+    window['quarto-listings'] = window['quarto-listings'] || {};
+    window['quarto-listings']['listing-listing'] = new List('listing-listing', options);
+
+    if (window['quarto-listing-loaded']) {
+      window['quarto-listing-loaded']();
+    }
+  });
+
+  window.addEventListener('hashchange',() => {
+    if (window['quarto-listing-loaded']) {
+      window['quarto-listing-loaded']();
+    }
+  })
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<meta name="twitter:title" content="Sivuyile Nzimeni - 2023 Spatial Data Analysis">
+<meta name="twitter:description" content="Chapter 8 of Analysing US Census Data Methods, Maps and Models in R. In this post, we work through the code contained in the above-mentioned book.">
+<meta name="twitter:image" content="DC_Washington_West_20191122_TM.jpg">
+<meta name="twitter:creator" content="@Sivu_Nzimeni">
+<meta name="twitter:site" content="sivuyilenzimeni.netlify.app">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Sivuyile Nzimeni</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html" rel="" target="">
+ <span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com/Sivu_Nzimeni" rel="" target=""><i class="bi bi-twitter" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/SivuyileNzimeni" rel="" target=""><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://za.linkedin.com/in/sivuyile-nzimeni-98006ba0" rel="" target=""><i class="bi bi-linkedin" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+              <div class="quarto-toggle-container">
+                  <a href="" class="quarto-color-scheme-toggle nav-link" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+              </div>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">CONTENTS</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction"><span class="toc-section-number">1</span>  INTRODUCTION</a>
+  <ul class="collapse">
+  <li><a href="#exploratory-analysis-dissimilarity" id="toc-exploratory-analysis-dissimilarity" class="nav-link" data-scroll-target="#exploratory-analysis-dissimilarity"><span class="toc-section-number">1.1</span>  EXPLORATORY ANALYSIS: DISSIMILARITY</a></li>
+  </ul></li>
+  <li><a href="#regression-modelling" id="toc-regression-modelling" class="nav-link" data-scroll-target="#regression-modelling"><span class="toc-section-number">2</span>  REGRESSION MODELLING</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion"><span class="toc-section-number">3</span>  CONCLUSION</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">2023 Spatial Data Analysis</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">spatial data</div>
+    <div class="quarto-category">data cleaning</div>
+    <div class="quarto-category">visualisation</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    Chapter 8 of Analysing US Census Data Methods, Maps and Models in R. In this post, we work through the code contained in the above-mentioned book. This chapter is important as includes sections on spatial feature engineering, modelling and visualisation.
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Sivuyile Nzimeni </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">14 April 2023</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="introduction" class="level1 page-columns page-full" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> INTRODUCTION</h1>
+<div class="cell">
+<details>
+<summary>see code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="co">#|results: hide</span></span>
+<span id="cb1-2"><a href="#cb1-2"></a><span class="co">#|message: false</span></span>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="co">#|warning: false</span></span>
+<span id="cb1-4"><a href="#cb1-4"></a><span class="fu">source</span>(<span class="st">"2023_Prep_Data.R"</span>,</span>
+<span id="cb1-5"><a href="#cb1-5"></a>       <span class="at">local =</span> knitr<span class="sc">::</span><span class="fu">knit_global</span>(),</span>
+<span id="cb1-6"><a href="#cb1-6"></a>       <span class="at">echo =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb1-7"><a href="#cb1-7"></a>       <span class="at">print.eval =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb1-8"><a href="#cb1-8"></a>       <span class="at">verbose =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>The <code>tidycensus</code> packages offers a set of functions to <a href="https://www.census.gov/data.html">retrieve census and American Community Survey data</a>. Fortunately, the package offers a wide array of options for retrieving census data and American Community Survey via the Census API. We obtain the data through the <code>get_acs</code> function which contains geometry data for the American Community Survey (2015 - 2019) dataset.</p>
+<div class="callout callout-style-default callout-caution callout-captioned">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="true" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-caption-container flex-fill">
+PROGRESS BAR
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse show">
+<div class="callout-body-container callout-body">
+<p>It may be worthwhile to add an <code>progress_bar = FALSE</code> argument to a <code>get_acs</code> function call, especially, working within a <strong>RMarkdown</strong> or <strong>Quarto</strong> document. This way, one can avoid progress bar printing when the document is rendered.</p>
+</div>
+</div>
+</div>
+<section id="exploratory-analysis-dissimilarity" class="level2 page-columns page-full" data-number="1.1">
+<h2 data-number="1.1" class="anchored" data-anchor-id="exploratory-analysis-dissimilarity"><span class="header-section-number">1.1</span> EXPLORATORY ANALYSIS: DISSIMILARITY</h2>
+<p>With the spatial data in hand, we can explore the data more in-depth. Here, the <code>segregation</code> package offers a dissimilarity index function (conveniently named <code>dissimilarity</code>). The function returns a total segregation between a group and unit using the Index of Dissimilarity <span class="citation" data-cites="elbers2023">Elbers (<a href="#ref-elbers2023" role="doc-biblioref">2023</a>)</span> . Importantly, the dissimilarity index considers differences between two distinct groups. As the first step, we conduct dissimilarity between Hispanic and White residents in San Francisco–Oakland.</p>
+<div class="cell">
+<details>
+<summary>see code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>ca_urban_data <span class="sc">%&gt;%</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a>  <span class="fu">filter</span>(variable <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"white"</span>, <span class="st">"hispanic"</span>),</span>
+<span id="cb2-3"><a href="#cb2-3"></a>         <span class="fu">str_detect</span>(urban_name,<span class="st">"San Francisco--Oakland"</span>))<span class="sc">%&gt;%</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a>  <span class="fu">dissimilarity</span>(<span class="at">group =</span> <span class="st">"variable"</span>,</span>
+<span id="cb2-5"><a href="#cb2-5"></a>                <span class="at">unit =</span> <span class="st">"GEOID"</span>,</span>
+<span id="cb2-6"><a href="#cb2-6"></a>                <span class="at">weight =</span> <span class="st">"estimate"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>   stat       est
+1:    D 0.5135526</code></pre>
+</div>
+</div>
+<p>To add context on the dissimilarity index above, we can compare regional. Below, we split the data by urban name and apply the function across those groups and finally combine the outputs. The approach below is slightly different to that contained in the book. The book offers a more tidy and succinct method.</p>
+<div class="cell">
+<details>
+<summary>see code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>Group_Wise <span class="ot">&lt;-</span> <span class="fu">split</span>(ca_urban_data,ca_urban_data<span class="sc">$</span>urban_name)</span>
+<span id="cb4-2"><a href="#cb4-2"></a></span>
+<span id="cb4-3"><a href="#cb4-3"></a>Group_Wise <span class="ot">&lt;-</span> <span class="fu">lapply</span>(Group_Wise,<span class="cf">function</span>(x){x <span class="sc">|&gt;</span> </span>
+<span id="cb4-4"><a href="#cb4-4"></a>    <span class="fu">filter</span>(variable <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"white"</span>,<span class="st">"hispanic"</span>))<span class="sc">%&gt;%</span></span>
+<span id="cb4-5"><a href="#cb4-5"></a>    <span class="fu">dissimilarity</span>(<span class="at">group =</span><span class="st">"variable"</span>,</span>
+<span id="cb4-6"><a href="#cb4-6"></a>                  <span class="at">unit =</span> <span class="st">"GEOID"</span>,</span>
+<span id="cb4-7"><a href="#cb4-7"></a>                  <span class="at">weight =</span> <span class="st">"estimate"</span>)})</span>
+<span id="cb4-8"><a href="#cb4-8"></a></span>
+<span id="cb4-9"><a href="#cb4-9"></a>Group_Wise <span class="ot">&lt;-</span> <span class="fu">do.call</span>(bind_rows,<span class="fu">map2</span>(Group_Wise,<span class="fu">names</span>(Group_Wise),<span class="cf">function</span>(x,y){</span>
+<span id="cb4-10"><a href="#cb4-10"></a>  x <span class="sc">|&gt;</span> </span>
+<span id="cb4-11"><a href="#cb4-11"></a>    <span class="fu">mutate</span>(<span class="at">urban_name =</span> y)</span>
+<span id="cb4-12"><a href="#cb4-12"></a>}))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Across urban areas, Los Angeles –Long Beach, has the highest dissimilarity index at 0.599. The dissimilarity index ranges from 0 - 1 where 0 represents perfect integration between two groups and 1 represents complete segregation <span class="citation" data-cites="walker2023">(<a href="#ref-walker2023" role="doc-biblioref">Walker 2023, 215</a>)</span>. The table below provides some context compared to our earlier dissimilarity index value for San Francisco-Oakland.</p>
+<div class="cell page-columns page-full">
+<details>
+<summary>see code</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="fu">library</span>(gt)</span>
+<span id="cb5-2"><a href="#cb5-2"></a><span class="fu">library</span>(gtExtras)</span>
+<span id="cb5-3"><a href="#cb5-3"></a></span>
+<span id="cb5-4"><a href="#cb5-4"></a>Group_Wise <span class="sc">|&gt;</span> </span>
+<span id="cb5-5"><a href="#cb5-5"></a>  <span class="fu">select</span>(<span class="fu">c</span>(urban_name,stat,est)) <span class="sc">|&gt;</span> </span>
+<span id="cb5-6"><a href="#cb5-6"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(est)) <span class="sc">|&gt;</span> </span>
+<span id="cb5-7"><a href="#cb5-7"></a>  <span class="fu">gt</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb5-8"><a href="#cb5-8"></a>  <span class="fu">gt_theme_espn</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display page-columns page-full">
+
+<div id="tokghnuebz" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;" class="page-columns page-full">
+<style>@import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+#tokghnuebz table {
+  font-family: Lato, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#tokghnuebz thead, #tokghnuebz tbody, #tokghnuebz tfoot, #tokghnuebz tr, #tokghnuebz td, #tokghnuebz th {
+  border-style: none;
+}
+
+#tokghnuebz p {
+  margin: 0;
+  padding: 0;
+}
+
+#tokghnuebz .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 3px;
+  border-top-color: #FFFFFF;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#tokghnuebz .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#tokghnuebz .gt_title {
+  color: #333333;
+  font-size: 24px;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#tokghnuebz .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#tokghnuebz .gt_heading {
+  background-color: #FFFFFF;
+  text-align: left;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#tokghnuebz .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tokghnuebz .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#tokghnuebz .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  text-transform: uppercase;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#tokghnuebz .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  text-transform: uppercase;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#tokghnuebz .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#tokghnuebz .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#tokghnuebz .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#tokghnuebz .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#tokghnuebz .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  text-transform: uppercase;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#tokghnuebz .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#tokghnuebz .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#tokghnuebz .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#tokghnuebz .gt_row {
+  padding-top: 7px;
+  padding-bottom: 7px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #F6F7F7;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#tokghnuebz .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  text-transform: uppercase;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tokghnuebz .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#tokghnuebz .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#tokghnuebz .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#tokghnuebz .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tokghnuebz .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#tokghnuebz .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#tokghnuebz .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tokghnuebz .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tokghnuebz .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#tokghnuebz .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tokghnuebz .gt_striped {
+  background-color: #FAFAFA;
+}
+
+#tokghnuebz .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#tokghnuebz .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#tokghnuebz .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tokghnuebz .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#tokghnuebz .gt_sourcenote {
+  font-size: 12px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#tokghnuebz .gt_left {
+  text-align: left;
+}
+
+#tokghnuebz .gt_center {
+  text-align: center;
+}
+
+#tokghnuebz .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#tokghnuebz .gt_font_normal {
+  font-weight: normal;
+}
+
+#tokghnuebz .gt_font_bold {
+  font-weight: bold;
+}
+
+#tokghnuebz .gt_font_italic {
+  font-style: italic;
+}
+
+#tokghnuebz .gt_super {
+  font-size: 65%;
+}
+
+#tokghnuebz .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#tokghnuebz .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#tokghnuebz .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#tokghnuebz .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#tokghnuebz .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#tokghnuebz .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#tokghnuebz .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="urban_name">urban_name</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="stat">stat</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="est">est</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="urban_name" class="gt_row gt_left">Los Angeles--Long Beach--Anaheim, CA Urbanized Area (2010)</td>
+<td headers="stat" class="gt_row gt_left">D</td>
+<td headers="est" class="gt_row gt_right">0.5999229</td></tr>
+    <tr><td headers="urban_name" class="gt_row gt_left gt_striped">San Francisco--Oakland, CA Urbanized Area (2010)</td>
+<td headers="stat" class="gt_row gt_left gt_striped">D</td>
+<td headers="est" class="gt_row gt_right gt_striped">0.5135526</td></tr>
+    <tr><td headers="urban_name" class="gt_row gt_left">San Jose, CA Urbanized Area (2010)</td>
+<td headers="stat" class="gt_row gt_left">D</td>
+<td headers="est" class="gt_row gt_right">0.4935633</td></tr>
+    <tr><td headers="urban_name" class="gt_row gt_left gt_striped">San Diego, CA Urbanized Area (2010)</td>
+<td headers="stat" class="gt_row gt_left gt_striped">D</td>
+<td headers="est" class="gt_row gt_right gt_striped">0.4898184</td></tr>
+    <tr><td headers="urban_name" class="gt_row gt_left">Riverside--San Bernardino, CA Urbanized Area (2010)</td>
+<td headers="stat" class="gt_row gt_left">D</td>
+<td headers="est" class="gt_row gt_right">0.4079863</td></tr>
+    <tr><td headers="urban_name" class="gt_row gt_left gt_striped">Sacramento, CA Urbanized Area (2010)</td>
+<td headers="stat" class="gt_row gt_left gt_striped">D</td>
+<td headers="est" class="gt_row gt_right gt_striped">0.3687927</td></tr>
+  </tbody>
+  
+  
+</table>
+<div class="quarto-table-caption margin-caption">Dissimilarity indices for Hispanic and non-Hispanic white population across California urbanised areas.</div></div>
+</div>
+</div>
+<p>Among the urban areas Los Angeles and San Francisco are the most segregated areas among Hispanic and White residents. While, San-Bernardino and Sacramento had the least among of segregation. We can expand on the dissimilarity index by considering more than two groups. Again, we rely on the <code>segregation</code> package’s implementation of the Mutual Information Index and Theil’s Entropy Index. The latter indices measure diversity and segregation across <em>multiple</em> groups <span class="citation" data-cites="walker2023">(<a href="#ref-walker2023" role="doc-biblioref">Walker 2023, 217</a>)</span> in California urban areas.</p>
+<div class="cell page-columns page-full">
+<details>
+<summary>see code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="fu">mutual_within</span>(<span class="at">data =</span> ca_urban_data,</span>
+<span id="cb6-2"><a href="#cb6-2"></a>              <span class="at">group =</span> <span class="st">"variable"</span>,</span>
+<span id="cb6-3"><a href="#cb6-3"></a>              <span class="at">unit =</span> <span class="st">"GEOID"</span>,</span>
+<span id="cb6-4"><a href="#cb6-4"></a>              <span class="at">weight =</span> <span class="st">"estimate"</span>,</span>
+<span id="cb6-5"><a href="#cb6-5"></a>              <span class="at">within =</span> <span class="st">"urban_name"</span>,</span>
+<span id="cb6-6"><a href="#cb6-6"></a>              <span class="at">wide =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb6-7"><a href="#cb6-7"></a>  <span class="fu">arrange</span>(<span class="fu">desc</span>(H)) <span class="sc">|&gt;</span> </span>
+<span id="cb6-8"><a href="#cb6-8"></a>  <span class="fu">gt</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb6-9"><a href="#cb6-9"></a>  <span class="fu">cols_label</span>(</span>
+<span id="cb6-10"><a href="#cb6-10"></a>    <span class="at">urban_name =</span> <span class="st">"URBAN NAME"</span>,</span>
+<span id="cb6-11"><a href="#cb6-11"></a>    <span class="at">M =</span> <span class="st">"M Index (M)"</span>,</span>
+<span id="cb6-12"><a href="#cb6-12"></a>    <span class="at">H =</span> <span class="st">"H Index (H)"</span>,</span>
+<span id="cb6-13"><a href="#cb6-13"></a>    <span class="at">p =</span> <span class="st">"Proportion of the category (p)"</span>,</span>
+<span id="cb6-14"><a href="#cb6-14"></a>    <span class="at">ent_ratio =</span> <span class="st">"Entropy Ratio"</span></span>
+<span id="cb6-15"><a href="#cb6-15"></a>  ) <span class="sc">|&gt;</span> </span>
+<span id="cb6-16"><a href="#cb6-16"></a>  <span class="fu">gt_theme_espn</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display page-columns page-full">
+
+<div id="lgnlkdpwqs" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;" class="page-columns page-full">
+<style>@import url("https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+#lgnlkdpwqs table {
+  font-family: Lato, system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#lgnlkdpwqs thead, #lgnlkdpwqs tbody, #lgnlkdpwqs tfoot, #lgnlkdpwqs tr, #lgnlkdpwqs td, #lgnlkdpwqs th {
+  border-style: none;
+}
+
+#lgnlkdpwqs p {
+  margin: 0;
+  padding: 0;
+}
+
+#lgnlkdpwqs .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 3px;
+  border-top-color: #FFFFFF;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#lgnlkdpwqs .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#lgnlkdpwqs .gt_title {
+  color: #333333;
+  font-size: 24px;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#lgnlkdpwqs .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#lgnlkdpwqs .gt_heading {
+  background-color: #FFFFFF;
+  text-align: left;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#lgnlkdpwqs .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#lgnlkdpwqs .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#lgnlkdpwqs .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  text-transform: uppercase;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#lgnlkdpwqs .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  text-transform: uppercase;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#lgnlkdpwqs .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#lgnlkdpwqs .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#lgnlkdpwqs .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#lgnlkdpwqs .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#lgnlkdpwqs .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  text-transform: uppercase;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#lgnlkdpwqs .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#lgnlkdpwqs .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#lgnlkdpwqs .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#lgnlkdpwqs .gt_row {
+  padding-top: 7px;
+  padding-bottom: 7px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #F6F7F7;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#lgnlkdpwqs .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 80%;
+  font-weight: bolder;
+  text-transform: uppercase;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#lgnlkdpwqs .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#lgnlkdpwqs .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#lgnlkdpwqs .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#lgnlkdpwqs .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#lgnlkdpwqs .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#lgnlkdpwqs .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#lgnlkdpwqs .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#lgnlkdpwqs .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#lgnlkdpwqs .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#lgnlkdpwqs .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#lgnlkdpwqs .gt_striped {
+  background-color: #FAFAFA;
+}
+
+#lgnlkdpwqs .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#lgnlkdpwqs .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#lgnlkdpwqs .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#lgnlkdpwqs .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#lgnlkdpwqs .gt_sourcenote {
+  font-size: 12px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#lgnlkdpwqs .gt_left {
+  text-align: left;
+}
+
+#lgnlkdpwqs .gt_center {
+  text-align: center;
+}
+
+#lgnlkdpwqs .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#lgnlkdpwqs .gt_font_normal {
+  font-weight: normal;
+}
+
+#lgnlkdpwqs .gt_font_bold {
+  font-weight: bold;
+}
+
+#lgnlkdpwqs .gt_font_italic {
+  font-style: italic;
+}
+
+#lgnlkdpwqs .gt_super {
+  font-size: 65%;
+}
+
+#lgnlkdpwqs .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#lgnlkdpwqs .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#lgnlkdpwqs .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#lgnlkdpwqs .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#lgnlkdpwqs .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#lgnlkdpwqs .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#lgnlkdpwqs .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+<table class="gt_table" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+  <thead>
+    
+    <tr class="gt_col_headings">
+      <th class="gt_col_heading gt_columns_bottom_border gt_left" rowspan="1" colspan="1" scope="col" id="URBAN NAME">URBAN NAME</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="M Index (M)">M Index (M)</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Proportion of the category (p)">Proportion of the category (p)</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="H Index (H)">H Index (H)</th>
+      <th class="gt_col_heading gt_columns_bottom_border gt_right" rowspan="1" colspan="1" scope="col" id="Entropy Ratio">Entropy Ratio</th>
+    </tr>
+  </thead>
+  <tbody class="gt_table_body">
+    <tr><td headers="urban_name" class="gt_row gt_left">Los Angeles--Long Beach--Anaheim, CA Urbanized Area (2010)</td>
+<td headers="M" class="gt_row gt_right">0.3391033</td>
+<td headers="p" class="gt_row gt_right">0.50163709</td>
+<td headers="H" class="gt_row gt_right">0.2851662</td>
+<td headers="ent_ratio" class="gt_row gt_right">0.9693226</td></tr>
+    <tr><td headers="urban_name" class="gt_row gt_left gt_striped">San Francisco--Oakland, CA Urbanized Area (2010)</td>
+<td headers="M" class="gt_row gt_right gt_striped">0.2685992</td>
+<td headers="p" class="gt_row gt_right gt_striped">0.13945223</td>
+<td headers="H" class="gt_row gt_right gt_striped">0.2116127</td>
+<td headers="ent_ratio" class="gt_row gt_right gt_striped">1.0346590</td></tr>
+    <tr><td headers="urban_name" class="gt_row gt_left">San Diego, CA Urbanized Area (2010)</td>
+<td headers="M" class="gt_row gt_right">0.2290891</td>
+<td headers="p" class="gt_row gt_right">0.12560720</td>
+<td headers="H" class="gt_row gt_right">0.2025728</td>
+<td headers="ent_ratio" class="gt_row gt_right">0.9218445</td></tr>
+    <tr><td headers="urban_name" class="gt_row gt_left gt_striped">San Jose, CA Urbanized Area (2010)</td>
+<td headers="M" class="gt_row gt_right gt_striped">0.2147445</td>
+<td headers="p" class="gt_row gt_right gt_striped">0.07282785</td>
+<td headers="H" class="gt_row gt_right gt_striped">0.1829190</td>
+<td headers="ent_ratio" class="gt_row gt_right gt_striped">0.9569681</td></tr>
+    <tr><td headers="urban_name" class="gt_row gt_left">Sacramento, CA Urbanized Area (2010)</td>
+<td headers="M" class="gt_row gt_right">0.1658898</td>
+<td headers="p" class="gt_row gt_right">0.07369482</td>
+<td headers="H" class="gt_row gt_right">0.1426804</td>
+<td headers="ent_ratio" class="gt_row gt_right">0.9477412</td></tr>
+    <tr><td headers="urban_name" class="gt_row gt_left gt_striped">Riverside--San Bernardino, CA Urbanized Area (2010)</td>
+<td headers="M" class="gt_row gt_right gt_striped">0.1497129</td>
+<td headers="p" class="gt_row gt_right gt_striped">0.08678082</td>
+<td headers="H" class="gt_row gt_right gt_striped">0.1408461</td>
+<td headers="ent_ratio" class="gt_row gt_right gt_striped">0.8664604</td></tr>
+  </tbody>
+  
+  
+</table>
+<div class="quarto-table-caption margin-caption">Segregation and Integration across several California urban areas and racial categories</div></div>
+</div>
+</div>
+<p>The results of the multi-group dissimilarity index are largely similar with Los Angeles remaining the most segregated urban area in California. Los Angeles is large area, hence, it may be worthwhile to extend to local analysis. Local analysis is a more granular approach to understanding the differences.</p>
+<div class="cell page-columns page-full">
+<details>
+<summary>see code</summary>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>la_local_seg <span class="ot">&lt;-</span> ca_urban_data <span class="sc">%&gt;%</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a>  <span class="fu">filter</span>(<span class="fu">str_detect</span>(urban_name,<span class="st">"Los Angeles"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb7-3"><a href="#cb7-3"></a>  <span class="fu">mutual_local</span>(</span>
+<span id="cb7-4"><a href="#cb7-4"></a>    <span class="at">group =</span> <span class="st">"variable"</span>,</span>
+<span id="cb7-5"><a href="#cb7-5"></a>    <span class="at">unit =</span> <span class="st">"GEOID"</span>,</span>
+<span id="cb7-6"><a href="#cb7-6"></a>    <span class="at">weight =</span> <span class="st">"estimate"</span>,</span>
+<span id="cb7-7"><a href="#cb7-7"></a>    <span class="at">wide =</span> <span class="cn">TRUE</span></span>
+<span id="cb7-8"><a href="#cb7-8"></a>)</span>
+<span id="cb7-9"><a href="#cb7-9"></a></span>
+<span id="cb7-10"><a href="#cb7-10"></a>la_tracts_seg <span class="ot">&lt;-</span> <span class="fu">tracts</span>(<span class="st">"CA"</span>, <span class="at">cb =</span> <span class="cn">TRUE</span>, <span class="at">year=</span><span class="dv">2019</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb7-11"><a href="#cb7-11"></a>  <span class="fu">inner_join</span>(la_local_seg, <span class="at">by =</span> <span class="st">"GEOID"</span>)</span>
+<span id="cb7-12"><a href="#cb7-12"></a></span>
+<span id="cb7-13"><a href="#cb7-13"></a>la_tracts_seg <span class="sc">%&gt;%</span></span>
+<span id="cb7-14"><a href="#cb7-14"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">fill =</span> ls)) <span class="sc">+</span></span>
+<span id="cb7-15"><a href="#cb7-15"></a>  <span class="fu">geom_sf</span>(<span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb7-16"><a href="#cb7-16"></a>  <span class="fu">coord_sf</span>(<span class="at">crs =</span> <span class="dv">26946</span>) <span class="sc">+</span></span>
+<span id="cb7-17"><a href="#cb7-17"></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="at">option =</span> <span class="st">"turbo"</span>) <span class="sc">+</span></span>
+<span id="cb7-18"><a href="#cb7-18"></a>  <span class="fu">theme_void</span>() <span class="sc">+</span></span>
+<span id="cb7-19"><a href="#cb7-19"></a>  <span class="fu">labs</span>(<span class="at">fill =</span> <span class="st">"Local</span><span class="sc">\n</span><span class="st">Segregation</span><span class="sc">\n</span><span class="st">Index"</span>)<span class="sc">+</span></span>
+<span id="cb7-20"><a href="#cb7-20"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display page-columns page-full">
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p></p><figcaption class="figure-caption margin-caption">California Area Diversity Gradient</figcaption><p></p>
+<p><img src="index_files/figure-html/Visualising_Segregation_Difference-1.png" class="img-fluid figure-img" width="2100"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="regression-modelling" class="level1 page-columns page-full" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> REGRESSION MODELLING</h1>
+<p>We proceed to modelling on the dataset, although our area of interest changes to Dallas-Forth Worth metropolitan area. A good starting point would be fitting an Ordinary Least Squares (OLS) model. <span class="citation" data-cites="walker2023">(<a href="#ref-walker2023" role="doc-biblioref">Walker 2023, 221</a>)</span> highlights a few glaring issues with this approach, namely: <em>Collinearity</em> and <em>Spatial Autocorrelation</em>. Collinearity is likely to emerge from the highly correlated of census data; Spatial Autocorrelation may occur since spatial coordinates are not necessary statistically independent. Recall, the above mentioned features violate some OLS assumptions. There methods are several methods to handle Collinearity, think Principal Component Analysis, Partial Least Squares and other Dimension Reduction techniques. We can also employ a number of test for autocorrelation, later in the post. The remainder of the section will be as follows: i) Data Collection, ii) Data Visualisation and iii) Feature Engineering and iv) Spatial Regression.</p>
+<p>The code snippet below contains the counties of interest along with the variables to used, data transformation to the appropriate coordinate reference system and data visualisation. Coordinate Reference Systems like Dates are a special type of data (read <em>Rabbit-Hole</em>), <span class="citation" data-cites="walker2023">(<a href="#ref-walker2023" role="doc-biblioref">Walker 2023, 109</a>)</span> and <span class="citation" data-cites="lovelace2019">(<a href="#ref-lovelace2019" role="doc-biblioref">Lovelace, Nowosad, and Münchow 2019, 41: 43</a>)</span> provides a decent introduction and R methods for working with coordinate reference systems. As a result, we don’t adjust the code in any form.</p>
+<div class="cell page-columns page-full">
+<details>
+<summary>see code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb8-2"><a href="#cb8-2"></a><span class="fu">library</span>(units)</span>
+<span id="cb8-3"><a href="#cb8-3"></a><span class="fu">library</span>(patchwork)</span>
+<span id="cb8-4"><a href="#cb8-4"></a></span>
+<span id="cb8-5"><a href="#cb8-5"></a>dfw_counties <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Collin County"</span>, <span class="st">"Dallas"</span>, <span class="st">"Denton"</span>, </span>
+<span id="cb8-6"><a href="#cb8-6"></a>                  <span class="st">"Ellis"</span>, <span class="st">"Hunt"</span>, <span class="st">"Kaufman"</span>, <span class="st">"Rockwall"</span>, </span>
+<span id="cb8-7"><a href="#cb8-7"></a>                  <span class="st">"Johnson"</span>, <span class="st">"Parker"</span>, <span class="st">"Tarrant"</span>, <span class="st">"Wise"</span>)</span>
+<span id="cb8-8"><a href="#cb8-8"></a></span>
+<span id="cb8-9"><a href="#cb8-9"></a>variables_to_get <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb8-10"><a href="#cb8-10"></a>  <span class="at">median_value =</span> <span class="st">"B25077_001"</span>,</span>
+<span id="cb8-11"><a href="#cb8-11"></a>  <span class="at">median_rooms =</span> <span class="st">"B25018_001"</span>,</span>
+<span id="cb8-12"><a href="#cb8-12"></a>  <span class="at">median_income =</span> <span class="st">"DP03_0062"</span>,</span>
+<span id="cb8-13"><a href="#cb8-13"></a>  <span class="at">total_population =</span> <span class="st">"B01003_001"</span>,</span>
+<span id="cb8-14"><a href="#cb8-14"></a>  <span class="at">median_age =</span> <span class="st">"B01002_001"</span>,</span>
+<span id="cb8-15"><a href="#cb8-15"></a>  <span class="at">pct_college =</span> <span class="st">"DP02_0068P"</span>,</span>
+<span id="cb8-16"><a href="#cb8-16"></a>  <span class="at">pct_foreign_born =</span> <span class="st">"DP02_0094P"</span>,</span>
+<span id="cb8-17"><a href="#cb8-17"></a>  <span class="at">pct_white =</span> <span class="st">"DP05_0077P"</span>,</span>
+<span id="cb8-18"><a href="#cb8-18"></a>  <span class="at">median_year_built =</span> <span class="st">"B25037_001"</span>,</span>
+<span id="cb8-19"><a href="#cb8-19"></a>  <span class="at">percent_ooh =</span> <span class="st">"DP04_0046P"</span></span>
+<span id="cb8-20"><a href="#cb8-20"></a>)</span>
+<span id="cb8-21"><a href="#cb8-21"></a></span>
+<span id="cb8-22"><a href="#cb8-22"></a>dfw_data <span class="ot">&lt;-</span> <span class="fu">get_acs</span>(</span>
+<span id="cb8-23"><a href="#cb8-23"></a>  <span class="at">geography =</span> <span class="st">"tract"</span>,</span>
+<span id="cb8-24"><a href="#cb8-24"></a>  <span class="at">variables =</span> variables_to_get,</span>
+<span id="cb8-25"><a href="#cb8-25"></a>  <span class="at">state =</span> <span class="st">"TX"</span>,</span>
+<span id="cb8-26"><a href="#cb8-26"></a>  <span class="at">county =</span> dfw_counties,</span>
+<span id="cb8-27"><a href="#cb8-27"></a>  <span class="at">geometry =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb8-28"><a href="#cb8-28"></a>  <span class="at">output =</span> <span class="st">"wide"</span>,</span>
+<span id="cb8-29"><a href="#cb8-29"></a>  <span class="at">year =</span> <span class="dv">2020</span>,</span>
+<span id="cb8-30"><a href="#cb8-30"></a>  <span class="at">progress_bar =</span> <span class="cn">FALSE</span></span>
+<span id="cb8-31"><a href="#cb8-31"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb8-32"><a href="#cb8-32"></a>  <span class="fu">select</span>(<span class="sc">-</span>NAME) <span class="sc">%&gt;%</span></span>
+<span id="cb8-33"><a href="#cb8-33"></a>  <span class="fu">st_transform</span>(<span class="dv">32138</span>)</span>
+<span id="cb8-34"><a href="#cb8-34"></a></span>
+<span id="cb8-35"><a href="#cb8-35"></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb8-36"><a href="#cb8-36"></a><span class="fu">library</span>(patchwork)</span>
+<span id="cb8-37"><a href="#cb8-37"></a></span>
+<span id="cb8-38"><a href="#cb8-38"></a>mhv_map <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(dfw_data, <span class="fu">aes</span>(<span class="at">fill =</span> <span class="fu">log</span>(median_valueE))) <span class="sc">+</span> </span>
+<span id="cb8-39"><a href="#cb8-39"></a>  <span class="fu">geom_sf</span>(<span class="at">color =</span> <span class="cn">NA</span>) <span class="sc">+</span> </span>
+<span id="cb8-40"><a href="#cb8-40"></a>  <span class="fu">scale_fill_viridis_c</span>() <span class="sc">+</span> </span>
+<span id="cb8-41"><a href="#cb8-41"></a>  <span class="fu">theme_void</span>() <span class="sc">+</span> </span>
+<span id="cb8-42"><a href="#cb8-42"></a>  <span class="fu">labs</span>(<span class="at">fill =</span> <span class="st">"Median home value "</span>)</span>
+<span id="cb8-43"><a href="#cb8-43"></a></span>
+<span id="cb8-44"><a href="#cb8-44"></a>mhv_histogram <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(dfw_data, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">log</span>(median_valueE))) <span class="sc">+</span> </span>
+<span id="cb8-45"><a href="#cb8-45"></a>  <span class="fu">geom_histogram</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">fill =</span> <span class="st">"#0f204b"</span>, <span class="at">color =</span> <span class="st">"#0f204b"</span>,</span>
+<span id="cb8-46"><a href="#cb8-46"></a>                 <span class="at">bins =</span> <span class="dv">100</span>) <span class="sc">+</span> </span>
+<span id="cb8-47"><a href="#cb8-47"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span> </span>
+<span id="cb8-48"><a href="#cb8-48"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_number_si</span>(<span class="at">accuracy =</span> <span class="dv">1</span>)) <span class="sc">+</span> </span>
+<span id="cb8-49"><a href="#cb8-49"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Median home value"</span>)</span>
+<span id="cb8-50"><a href="#cb8-50"></a></span>
+<span id="cb8-51"><a href="#cb8-51"></a>mhv_map <span class="sc">+</span> mhv_histogram</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display page-columns page-full">
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p></p><figcaption class="figure-caption margin-caption">Log Median Home Values across DFW counties</figcaption><p></p>
+<p><img src="index_files/figure-html/DFW_Collect-1.png" class="img-fluid figure-img" width="2100"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We have explored our outcome variable. The next step is a bit of data processing. Firstly, we create a population density across a standard unit of <span class="math inline">\(1/km^2\)</span>. Secondly, we derive a median age of the structure by deducting the 2018. Thirdly, we remove variables ending with M and clean variable names ending with capital letter E. Finally, we fit an OLS model and store the residuals of the model into our Dataframe. The residuals will be used in the spatial regression models down the line.</p>
+<div class="cell">
+<details>
+<summary>see code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a>dfw_data_for_model <span class="ot">&lt;-</span> dfw_data <span class="sc">%&gt;%</span> </span>
+<span id="cb9-2"><a href="#cb9-2"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb9-3"><a href="#cb9-3"></a>    <span class="at">pop_density =</span> <span class="fu">as.numeric</span>(<span class="fu">set_units</span>(total_populationE <span class="sc">/</span><span class="fu">st_area</span>(.),<span class="st">"1/km2"</span>)),</span>
+<span id="cb9-4"><a href="#cb9-4"></a>    <span class="at">median_structure_age =</span> <span class="dv">2018</span> <span class="sc">-</span> median_year_builtE) <span class="sc">%&gt;%</span></span>
+<span id="cb9-5"><a href="#cb9-5"></a>  <span class="fu">select</span>(<span class="sc">!</span><span class="fu">ends_with</span>(<span class="st">"M"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb9-6"><a href="#cb9-6"></a>  <span class="fu">rename_with</span>(<span class="at">.fn =</span> <span class="sc">~</span><span class="fu">str_remove</span>(.x, <span class="st">"E$"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb9-7"><a href="#cb9-7"></a>  <span class="fu">na.omit</span>()</span>
+<span id="cb9-8"><a href="#cb9-8"></a></span>
+<span id="cb9-9"><a href="#cb9-9"></a>formula2 <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"log(median_value) ~median_rooms+pct_college+"</span>,</span>
+<span id="cb9-10"><a href="#cb9-10"></a><span class="st">"pct_foreign_born +pct_white+median_age+"</span>,</span>
+<span id="cb9-11"><a href="#cb9-11"></a><span class="st">"median_structure_age +percent_ooh+pop_density+"</span>,</span>
+<span id="cb9-12"><a href="#cb9-12"></a><span class="st">"total_population"</span>)</span>
+<span id="cb9-13"><a href="#cb9-13"></a></span>
+<span id="cb9-14"><a href="#cb9-14"></a>model2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(formula2,<span class="at">data=</span>dfw_data_for_model)</span>
+<span id="cb9-15"><a href="#cb9-15"></a>dfw_data_for_model<span class="sc">$</span>residuals <span class="ot">&lt;-</span> model2<span class="sc">$</span>residuals</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>The Moran’s I sums the deviation of values at given distance lag from the mean variable <span class="citation" data-cites="fortin2009">(<a href="#ref-fortin2009" role="doc-biblioref">Fortin and Dale 2009, 93</a>)</span> . We can use the test for spatial autocorrelation to determine whether nearby locations affect one other. Effectively, we test a null hypothesis that nearby locations <em>do not</em> affect each other, i.e.&nbsp;they are independent and spatially random. Below, we find positive spatial autocorrelation on the residuals, a violation of the assumption model independence <span class="citation" data-cites="walker2023">(<a href="#ref-walker2023" role="doc-biblioref">Walker 2023, 236</a>)</span>.</p>
+<div class="cell">
+<details>
+<summary>see code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="fu">library</span>(spdep)</span>
+<span id="cb10-2"><a href="#cb10-2"></a></span>
+<span id="cb10-3"><a href="#cb10-3"></a>wts <span class="ot">&lt;-</span> dfw_data_for_model <span class="sc">|&gt;</span> </span>
+<span id="cb10-4"><a href="#cb10-4"></a>  <span class="fu">poly2nb</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb10-5"><a href="#cb10-5"></a>  <span class="fu">nb2listw</span>()</span>
+<span id="cb10-6"><a href="#cb10-6"></a></span>
+<span id="cb10-7"><a href="#cb10-7"></a><span class="fu">moran.test</span>(dfw_data_for_model<span class="sc">$</span>residuals,</span>
+<span id="cb10-8"><a href="#cb10-8"></a>           wts)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Moran I test under randomisation
+
+data:  dfw_data_for_model$residuals  
+weights: wts    
+
+Moran I statistic standard deviate = 14.029, p-value &lt; 2.2e-16
+alternative hypothesis: greater
+sample estimates:
+Moran I statistic       Expectation          Variance 
+     0.2102864510     -0.0006418485      0.0002260480 </code></pre>
+</div>
+</div>
+<p>To expand the analysis, we fit a spatial lag model using the <code>spatialreg</code> package. The authors of the package have also written a a review of software for spatial econometrics <span class="citation" data-cites="bivand2021">(<a href="#ref-bivand2021" role="doc-biblioref">R. Bivand, Millo, and Piras 2021</a>)</span>, they provide an overview of the spatial modelling approaches in R, among others including spatial panel models, cross-sectional models, spatial lagged and spatial error models. Below, we fit a spatial lag model utilising the previously created spatial weights.</p>
+<div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">OLS Model</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">Spatial Lag Model</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-3" role="tab" aria-controls="tabset-1-3" aria-selected="false">Spatial Error Model</a></li></ul>
+<div class="tab-content">
+<div id="tabset-1-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-1-1-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = formula2, data = dfw_data_for_model)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-1.91754 -0.15319 -0.00224  0.16192  1.58949 
+
+Coefficients:
+                       Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)           1.101e+01  6.202e-02 177.569  &lt; 2e-16 ***
+median_rooms          7.326e-02  9.497e-03   7.713 2.18e-14 ***
+pct_college           1.775e-02  4.862e-04  36.506  &lt; 2e-16 ***
+pct_foreign_born      4.170e-03  8.284e-04   5.034 5.37e-07 ***
+pct_white             4.995e-03  4.862e-04  10.274  &lt; 2e-16 ***
+median_age            3.527e-03  1.429e-03   2.468   0.0137 *  
+median_structure_age  2.832e-05  2.696e-05   1.050   0.2937    
+percent_ooh          -3.888e-03  5.798e-04  -6.705 2.81e-11 ***
+pop_density          -5.479e-06  6.425e-06  -0.853   0.3940    
+total_population      9.711e-06  4.658e-06   2.085   0.0373 *  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.2815 on 1549 degrees of freedom
+Multiple R-squared:  0.7618,    Adjusted R-squared:  0.7604 
+F-statistic: 550.4 on 9 and 1549 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+</div>
+<div id="tabset-1-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-2-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(spatialreg)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gtsummary)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>lag_model <span class="ot">&lt;-</span> <span class="fu">lagsarlm</span>(</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">formula =</span> formula2,</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> dfw_data_for_model,</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">listw=</span> wts</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lag_model,<span class="at">Nagelkerke=</span><span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:lagsarlm(formula = formula2, data = dfw_data_for_model, listw = wts)
+
+Residuals:
+       Min         1Q     Median         3Q        Max 
+-2.0648791 -0.1377778 -0.0032625  0.1386678  1.4820330 
+
+Type: lag 
+Coefficients: (asymptotic standard errors) 
+                        Estimate  Std. Error z value  Pr(&gt;|z|)
+(Intercept)           7.0166e+00  2.6893e-01 26.0903 &lt; 2.2e-16
+median_rooms          6.2047e-02  8.8546e-03  7.0073 2.430e-12
+pct_college           1.2855e-02  5.4694e-04 23.5029 &lt; 2.2e-16
+pct_foreign_born      2.0090e-03  7.7474e-04  2.5931  0.009512
+pct_white             2.7088e-03  4.7175e-04  5.7419 9.360e-09
+median_age            3.4397e-03  1.3162e-03  2.6134  0.008963
+median_structure_age  2.6116e-05  2.4824e-05  1.0521  0.292774
+percent_ooh          -3.0439e-03  5.4311e-04 -5.6047 2.086e-08
+pop_density          -1.3586e-05  5.9274e-06 -2.2920  0.021903
+total_population      8.3743e-06  4.2924e-06  1.9509  0.051063
+
+Rho: 0.35337, LR test value: 211.1, p-value: &lt; 2.22e-16
+Asymptotic standard error: 0.023371
+    z-value: 15.12, p-value: &lt; 2.22e-16
+Wald statistic: 228.6, p-value: &lt; 2.22e-16
+
+Log likelihood: -125.1649 for lag model
+ML residual variance (sigma squared): 0.067166, (sigma: 0.25916)
+Nagelkerke pseudo-R-squared: 0.79196 
+Number of observations: 1559 
+Number of parameters estimated: 12 
+AIC: 274.33, (AIC for lm: 483.43)
+LM test for residual autocorrelation
+test value: 6.9518, p-value: 0.0083735</code></pre>
+</div>
+</div>
+</div>
+<div id="tabset-1-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-1-3-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>error_model <span class="ot">&lt;-</span> <span class="fu">errorsarlm</span>(<span class="at">formula =</span> formula2,</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>           <span class="at">data =</span> dfw_data_for_model,</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>           <span class="at">listw =</span> wts)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(error_model, <span class="at">Nagelkerke =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:errorsarlm(formula = formula2, data = dfw_data_for_model, listw = wts)
+
+Residuals:
+        Min          1Q      Median          3Q         Max 
+-1.98019809 -0.13647987 -0.00063398  0.13920144  1.54919789 
+
+Type: error 
+Coefficients: (asymptotic standard errors) 
+                        Estimate  Std. Error  z value  Pr(&gt;|z|)
+(Intercept)           1.1098e+01  6.6706e-02 166.3776 &lt; 2.2e-16
+median_rooms          8.2887e-02  9.7087e-03   8.5374 &lt; 2.2e-16
+pct_college           1.5854e-02  5.7434e-04  27.6036 &lt; 2.2e-16
+pct_foreign_born      3.6574e-03  9.6573e-04   3.7872 0.0001524
+pct_white             4.6690e-03  6.1194e-04   7.6299 2.354e-14
+median_age            3.9385e-03  1.4128e-03   2.7877 0.0053077
+median_structure_age  2.6047e-05  2.5445e-05   1.0237 0.3059955
+percent_ooh          -4.7598e-03  5.6731e-04  -8.3902 &lt; 2.2e-16
+pop_density          -1.5068e-05  6.8677e-06  -2.1940 0.0282326
+total_population      1.0542e-05  4.4656e-06   2.3608 0.0182379
+
+Lambda: 0.46811, LR test value: 164.44, p-value: &lt; 2.22e-16
+Asymptotic standard error: 0.031982
+    z-value: 14.637, p-value: &lt; 2.22e-16
+Wald statistic: 214.23, p-value: &lt; 2.22e-16
+
+Log likelihood: -148.4983 for error model
+ML residual variance (sigma squared): 0.06786, (sigma: 0.2605)
+Nagelkerke pseudo-R-squared: 0.78564 
+Number of observations: 1559 
+Number of parameters estimated: 12 
+AIC: 321, (AIC for lm: 483.43)</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p>Unlike the OLS model, the spatial lag model accounts for spatial spillover effects. We can find these differences by considering the model parameters, in addition, the spatial lag model contains a pseudo-R-square which can serve as a comparison with the OLS model’s R-square value. Importantly, the spatial error model considers spatial lag in the model’s error term. Both the spatial lag and spatial error models are crucial for accounting for spatial autocorrelation. Selecting the appropriate model depends on the type of analysis conducted <span class="citation" data-cites="walker2023">(<a href="#ref-walker2023" role="doc-biblioref">Walker 2023, 239</a>)</span>. We can also rely on the Moran’s I to compare spatial dependence in our models, in our case, the spatial error model outperforms the rest.</p>
+<div class="cell">
+<details>
+<summary>see code</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>Model_Resid <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">lag_resid =</span> lag_model<span class="sc">$</span>residuals,</span>
+<span id="cb18-2"><a href="#cb18-2"></a>                    <span class="at">error_resid=</span> error_model<span class="sc">$</span>residuals)</span>
+<span id="cb18-3"><a href="#cb18-3"></a></span>
+<span id="cb18-4"><a href="#cb18-4"></a>MI_Compare <span class="ot">&lt;-</span> <span class="fu">lapply</span>(Model_Resid,</span>
+<span id="cb18-5"><a href="#cb18-5"></a>    \(x){</span>
+<span id="cb18-6"><a href="#cb18-6"></a>      <span class="fu">moran.test</span>(x,wts)</span>
+<span id="cb18-7"><a href="#cb18-7"></a>      })</span>
+<span id="cb18-8"><a href="#cb18-8"></a></span>
+<span id="cb18-9"><a href="#cb18-9"></a>MI_Compare</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>$lag_resid
+
+    Moran I test under randomisation
+
+data:  x  
+weights: wts    
+
+Moran I statistic standard deviate = 2.0478, p-value = 0.02029
+alternative hypothesis: greater
+sample estimates:
+Moran I statistic       Expectation          Variance 
+     0.0301318175     -0.0006418485      0.0002258242 
+
+
+$error_resid
+
+    Moran I test under randomisation
+
+data:  x  
+weights: wts    
+
+Moran I statistic standard deviate = -1.6147, p-value = 0.9468
+alternative hypothesis: greater
+sample estimates:
+Moran I statistic       Expectation          Variance 
+    -0.0249075353     -0.0006418485      0.0002258341 </code></pre>
+</div>
+</div>
+</section>
+<section id="conclusion" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> CONCLUSION</h1>
+<p>In this post, we set out to try and understand the process of modelling spatial data. Fortunately, <span class="citation" data-cites="walker2023">(<a href="#ref-walker2023" role="doc-biblioref">Walker 2023</a>)</span> provides a detailed book on this topic. The book and the code contained are fantastic resources for a novice like myself. The book is freely available <a href="https://walker-data.com/census-r/">online</a>. <span class="citation" data-cites="bivand2013">R. S. Bivand, Pebesma, and Gómez-Rubio (<a href="#ref-bivand2013" role="doc-biblioref">2013</a>)</span>, <span class="citation" data-cites="schabenberger2017">Schabenberger and Gotway (<a href="#ref-schabenberger2017" role="doc-biblioref">2017</a>)</span>, <span class="citation" data-cites="lovelace2019">Lovelace, Nowosad, and Münchow (<a href="#ref-lovelace2019" role="doc-biblioref">2019</a>)</span>, <span class="citation" data-cites="oyana2021">Oyana (<a href="#ref-oyana2021" role="doc-biblioref">2021</a>)</span> and <span class="citation" data-cites="pebesma2023">Pebesma and Bivand (<a href="#ref-pebesma2023" role="doc-biblioref">2023</a>)</span> among others offer R titles in Spatial Analysis. The titles offer a good blend of theory and practical application.</p>
+
+
+
+
+</section>
+
+<div class="quarto-listing quarto-listing-container-default" id="listing-listing">
+<div class="list quarto-listing-default">
+
+</div>
+<div class="listing-no-matching d-none">
+No matching items
+</div>
+</div><div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography">
+<div id="ref-bivand2013" class="csl-entry" role="doc-biblioentry">
+Bivand, Roger S., Edzer Pebesma, and Virgilio Gómez-Rubio. 2013. <em>Applied Spatial Data Analysis with R</em>. New York, NY: Springer New York. <a href="https://doi.org/10.1007/978-1-4614-7618-4">https://doi.org/10.1007/978-1-4614-7618-4</a>.
+</div>
+<div id="ref-bivand2021" class="csl-entry" role="doc-biblioentry">
+Bivand, Roger, Giovanni Millo, and Gianfranco Piras. 2021. <span>‘A Review of Software for Spatial Econometrics in R’</span>. <em>Mathematics</em> 9 (11): 1276. <a href="https://doi.org/10.3390/math9111276">https://doi.org/10.3390/math9111276</a>.
+</div>
+<div id="ref-elbers2023" class="csl-entry" role="doc-biblioentry">
+Elbers, Benjamin. 2023. <span>‘A Method for Studying Differences in Segregation Across Time and Space’</span>. <em>Sociological Methods &amp; Research</em> 52 (1): 5–42. <a href="https://doi.org/10.1177/0049124121986204">https://doi.org/10.1177/0049124121986204</a>.
+</div>
+<div id="ref-fortin2009" class="csl-entry" role="doc-biblioentry">
+Fortin, Marie-Josee, and Mark R. T Dale. 2009. <span>‘Spatial Autocorrelation’</span>. In, 1st ed., 19. London, UK: SAGE Publications Ltd.
+</div>
+<div id="ref-lovelace2019" class="csl-entry" role="doc-biblioentry">
+Lovelace, Robin, Jakub Nowosad, and Jannes Münchow. 2019. <em>Geocomputation with r</em>. Boca Raton: CRC Press, Taylor; Francis Group, CRC Press is an imprint of theTaylor; Francis Group, an informa Buisness, A Chapman &amp; Hall Book.
+</div>
+<div id="ref-oyana2021" class="csl-entry" role="doc-biblioentry">
+Oyana, Tonny J. 2021. <em>Spatial analysis with R: statistics, visualization, and computational methods</em>. Second edtion. Boca Raton London New York: CRC Press, Taylor &amp; Francis Group.
+</div>
+<div id="ref-pebesma2023" class="csl-entry" role="doc-biblioentry">
+Pebesma, Edzer, and Roger Bivand. 2023. <em>Spatial Data Science: With Applications in R</em>. 1st ed. Boca Raton: Chapman; Hall/CRC. <a href="https://doi.org/10.1201/9780429459016">https://doi.org/10.1201/9780429459016</a>.
+</div>
+<div id="ref-schabenberger2017" class="csl-entry" role="doc-biblioentry">
+Schabenberger, Oliver, and Carol A. Gotway. 2017. <em>Statistical Methods for Spatial Data Analysis: Texts in Statistical Science</em>. 1st ed. Chapman; Hall/CRC. <a href="https://doi.org/10.1201/9781315275086">https://doi.org/10.1201/9781315275086</a>.
+</div>
+<div id="ref-walker2023" class="csl-entry" role="doc-biblioentry">
+Walker, Kyle. 2023. <em>Analyzing US Census Data: Methods, Maps, and Models in R</em>. 1st ed. Boca Raton: Chapman; Hall/CRC. <a href="https://doi.org/10.1201/9780203711415">https://doi.org/10.1201/9780203711415</a>.
+</div>
+</div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  let localAlternateSentinel = 'default';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

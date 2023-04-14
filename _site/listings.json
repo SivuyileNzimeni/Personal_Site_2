@@ -2,6 +2,7 @@
   {
     "listing": "/index.html",
     "items": [
+      "/posts/2023 US Census Data/index.html",
       "/posts/2023 TidyTuesday Week 1/index.html",
       "/posts/2022 Ask A Manager Salary Survey/index.html",
       "/posts/2022 Eskom Capacity/index.html",
@@ -38,6 +39,10 @@
   },
   {
     "listing": "/posts/2023 TidyTuesday Week 1/index.html",
+    "items": []
+  },
+  {
+    "listing": "/posts/2023 US Census Data/index.html",
     "items": []
   }
 ]

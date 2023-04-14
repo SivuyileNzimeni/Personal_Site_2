@@ -1,0 +1,294 @@
+---
+title: "2023 Spatial Data Analysis"
+image: "DC_Washington_West_20191122_TM.jpg"
+image-alt: "A map of West Washington DC sourced from the US Department of the interior US Geological Survey"
+lang: "en-GB"
+date: "April 14,2023"
+author: "Sivuyile Nzimeni"
+description: "Chapter 8 of Analysing US Census Data Methods, Maps and Models in R. In this post, we work through the code contained in the above-mentioned book. This chapter is important as includes sections on spatial feature engineering, modelling and visualisation." 
+categories: [spatial data,data cleaning,visualisation]
+fig-dpi: 300
+fig-align: 'center'
+fig-cap-location: 'top'
+code-copy: true
+code-line-numbers: true
+page-layout: 'article'
+cap-location: 'margin'
+number-sections: true
+toc: true
+toc-title: 'CONTENTS'
+listing:
+  contents: post
+execute: 
+  echo: true
+  warning: false
+bibliography: references.bib
+---
+
+# INTRODUCTION
+
+```{r California_Racial_Distribution}
+#|results: hide
+#|message: false
+#|warning: false
+source("2023_Prep_Data.R",
+       local = knitr::knit_global(),
+       echo = FALSE,
+       print.eval = FALSE,
+       verbose = FALSE)
+```
+
+The `tidycensus` packages offers a set of functions to [retrieve census and American Community Survey data](https://www.census.gov/data.html). Fortunately, the package offers a wide array of options for retrieving census data and American Community Survey via the Census API. We obtain the data through the `get_acs` function which contains geometry data for the American Community Survey (2015 - 2019) dataset.
+
+::: {.callout-caution collapse="false"}
+## PROGRESS BAR
+
+It may be worthwhile to add an `progress_bar = FALSE` argument to a `get_acs` function call, especially, working within a **RMarkdown** or **Quarto** document. This way, one can avoid progress bar printing when the document is rendered.
+:::
+
+## EXPLORATORY ANALYSIS: DISSIMILARITY
+
+With the spatial data in hand, we can explore the data more in-depth. Here, the `segregation` package offers a dissimilarity index function (conveniently named `dissimilarity`). The function returns a total segregation between a group and unit using the Index of Dissimilarity @elbers2023 . Importantly, the dissimilarity index considers differences between two distinct groups. As the first step, we conduct dissimilarity between Hispanic and White residents in San Francisco--Oakland.
+
+```{r Dissimilarity_Regional}
+ca_urban_data %>%
+  filter(variable %in% c("white", "hispanic"),
+         str_detect(urban_name,"San Francisco--Oakland"))%>%
+  dissimilarity(group = "variable",
+                unit = "GEOID",
+                weight = "estimate")
+```
+
+To add context on the dissimilarity index above, we can compare regional. Below, we split the data by urban name and apply the function across those groups and finally combine the outputs. The approach below is slightly different to that contained in the book. The book offers a more tidy and succinct method.
+
+```{r Per_Region}
+Group_Wise <- split(ca_urban_data,ca_urban_data$urban_name)
+
+Group_Wise <- lapply(Group_Wise,function(x){x |> 
+    filter(variable %in% c("white","hispanic"))%>%
+    dissimilarity(group ="variable",
+                  unit = "GEOID",
+                  weight = "estimate")})
+
+Group_Wise <- do.call(bind_rows,map2(Group_Wise,names(Group_Wise),function(x,y){
+  x |> 
+    mutate(urban_name = y)
+}))
+```
+
+Across urban areas, Los Angeles --Long Beach, has the highest dissimilarity index at 0.599. The dissimilarity index ranges from 0 - 1 where 0 represents perfect integration between two groups and 1 represents complete segregation [@walker2023,pp. 215]. The table below provides some context compared to our earlier dissimilarity index value for San Francisco-Oakland.
+
+```{r Build_Dissimilarity_Index}
+#| include: true
+#| error: false
+#| tbl-cap: Dissimilarity indices for Hispanic and non-Hispanic white population across California urbanised areas.
+#| tbl-cap-location: top
+library(gt)
+library(gtExtras)
+
+Group_Wise |> 
+  select(c(urban_name,stat,est)) |> 
+  arrange(desc(est)) |> 
+  gt() |> 
+  gt_theme_espn()
+```
+
+Among the urban areas Los Angeles and San Francisco are the most segregated areas among Hispanic and White residents. While, San-Bernardino and Sacramento had the least among of segregation. We can expand on the dissimilarity index by considering more than two groups. Again, we rely on the `segregation` package's implementation of the Mutual Information Index and Theil's Entropy Index. The latter indices measure diversity and segregation across *multiple* groups [@walker2023, pp. 217] in California urban areas.
+
+```{r Group_Wise_Segregation}
+#| tbl-cap: Segregation and Integration across several California urban areas and racial categories
+
+mutual_within(data = ca_urban_data,
+              group = "variable",
+              unit = "GEOID",
+              weight = "estimate",
+              within = "urban_name",
+              wide = TRUE) |> 
+  arrange(desc(H)) |> 
+  gt() |> 
+  cols_label(
+    urban_name = "URBAN NAME",
+    M = "M Index (M)",
+    H = "H Index (H)",
+    p = "Proportion of the category (p)",
+    ent_ratio = "Entropy Ratio"
+  ) |> 
+  gt_theme_espn()
+```
+
+The results of the multi-group dissimilarity index are largely similar with Los Angeles remaining the most segregated urban area in California. Los Angeles is large area, hence, it may be worthwhile to extend to local analysis. Local analysis is a more granular approach to understanding the differences.
+
+```{r Visualising_Segregation_Difference}
+#| fig-cap: California Area Diversity Gradient
+la_local_seg <- ca_urban_data %>%
+  filter(str_detect(urban_name,"Los Angeles")) %>%
+  mutual_local(
+    group = "variable",
+    unit = "GEOID",
+    weight = "estimate",
+    wide = TRUE
+)
+
+la_tracts_seg <- tracts("CA", cb = TRUE, year=2019) %>%
+  inner_join(la_local_seg, by = "GEOID")
+
+la_tracts_seg %>%
+  ggplot(aes(fill = ls)) +
+  geom_sf(color = "black") +
+  coord_sf(crs = 26946) +
+  scale_fill_viridis_c(option = "turbo") +
+  theme_void() +
+  labs(fill = "Local\nSegregation\nIndex")+
+  theme(legend.position = "bottom")
+```
+
+# REGRESSION MODELLING
+
+We proceed to modelling on the dataset, although our area of interest changes to Dallas-Forth Worth metropolitan area. A good starting point would be fitting an Ordinary Least Squares (OLS) model. [@walker2023, pp. 221] highlights a few glaring issues with this approach, namely: *Collinearity* and *Spatial Autocorrelation*. Collinearity is likely to emerge from the highly correlated of census data; Spatial Autocorrelation may occur since spatial coordinates are not necessary statistically independent. Recall, the above mentioned features violate some OLS assumptions. There methods are several methods to handle Collinearity, think Principal Component Analysis, Partial Least Squares and other Dimension Reduction techniques. We can also employ a number of test for autocorrelation, later in the post. The remainder of the section will be as follows: i) Data Collection, ii) Data Visualisation and iii) Feature Engineering and iv) Spatial Regression.
+
+The code snippet below contains the counties of interest along with the variables to used, data transformation to the appropriate coordinate reference system and data visualisation. Coordinate Reference Systems like Dates are a special type of data (read *Rabbit-Hole*), [@walker2023, pp.109] and [@lovelace2019, pp. 41: 43] provides a decent introduction and R methods for working with coordinate reference systems. As a result, we don't adjust the code in any form.
+
+```{r DFW_Collect}
+#| fig-cap-location: "top"
+#| fig-cap: Log Median Home Values across DFW counties
+library(sf)
+library(units)
+library(patchwork)
+
+dfw_counties <- c("Collin County", "Dallas", "Denton", 
+                  "Ellis", "Hunt", "Kaufman", "Rockwall", 
+                  "Johnson", "Parker", "Tarrant", "Wise")
+
+variables_to_get <- c(
+  median_value = "B25077_001",
+  median_rooms = "B25018_001",
+  median_income = "DP03_0062",
+  total_population = "B01003_001",
+  median_age = "B01002_001",
+  pct_college = "DP02_0068P",
+  pct_foreign_born = "DP02_0094P",
+  pct_white = "DP05_0077P",
+  median_year_built = "B25037_001",
+  percent_ooh = "DP04_0046P"
+)
+
+dfw_data <- get_acs(
+  geography = "tract",
+  variables = variables_to_get,
+  state = "TX",
+  county = dfw_counties,
+  geometry = TRUE,
+  output = "wide",
+  year = 2020,
+  progress_bar = FALSE
+) %>%
+  select(-NAME) %>%
+  st_transform(32138)
+
+library(tidyverse)
+library(patchwork)
+
+mhv_map <- ggplot(dfw_data, aes(fill = log(median_valueE))) + 
+  geom_sf(color = NA) + 
+  scale_fill_viridis_c() + 
+  theme_void() + 
+  labs(fill = "Median home value ")
+
+mhv_histogram <- ggplot(dfw_data, aes(x = log(median_valueE))) + 
+  geom_histogram(alpha = 0.5, fill = "#0f204b", color = "#0f204b",
+                 bins = 100) + 
+  theme_minimal() + 
+  scale_x_continuous(labels = scales::label_number_si(accuracy = 1)) + 
+  labs(x = "Median home value")
+
+mhv_map + mhv_histogram
+```
+
+We have explored our outcome variable. The next step is a bit of data processing. Firstly, we create a population density across a standard unit of $1/km^2$. Secondly, we derive a median age of the structure by deducting the 2018. Thirdly, we remove variables ending with M and clean variable names ending with capital letter E. Finally, we fit an OLS model and store the residuals of the model into our Dataframe. The residuals will be used in the spatial regression models down the line.
+
+```{r Preprocessing_Data}
+dfw_data_for_model <- dfw_data %>% 
+  mutate(
+    pop_density = as.numeric(set_units(total_populationE /st_area(.),"1/km2")),
+    median_structure_age = 2018 - median_year_builtE) %>%
+  select(!ends_with("M")) %>%
+  rename_with(.fn = ~str_remove(.x, "E$")) %>%
+  na.omit()
+
+formula2 <- paste0("log(median_value) ~median_rooms+pct_college+",
+"pct_foreign_born +pct_white+median_age+",
+"median_structure_age +percent_ooh+pop_density+",
+"total_population")
+
+model2 <- lm(formula2,data=dfw_data_for_model)
+dfw_data_for_model$residuals <- model2$residuals
+```
+
+The Moran's I sums the deviation of values at given distance lag from the mean variable [@fortin2009, pp. 93] . We can use the test for spatial autocorrelation to determine whether nearby locations affect one other. Effectively, we test a null hypothesis that nearby locations *do not* affect each other, i.e. they are independent and spatially random. Below, we find positive spatial autocorrelation on the residuals, a violation of the assumption model independence [@walker2023, pp. 236].
+
+```{r Modelling}
+library(spdep)
+
+wts <- dfw_data_for_model |> 
+  poly2nb() |> 
+  nb2listw()
+
+moran.test(dfw_data_for_model$residuals,
+           wts)
+
+```
+
+To expand the analysis, we fit a spatial lag model using the `spatialreg` package. The authors of the package have also written a a review of software for spatial econometrics [@bivand2021], they provide an overview of the spatial modelling approaches in R, among others including spatial panel models, cross-sectional models, spatial lagged and spatial error models. Below, we fit a spatial lag model utilising the previously created spatial weights.
+
+::: panel-tabset
+## OLS Model
+
+```{r OLS_Model}
+#| label: Ordinary Least Squares Model
+summary(model2)
+```
+
+## Spatial Lag Model
+
+```{r Spatial_Lag}
+#| label: Spatial Lag model
+
+library(spatialreg)
+library(gtsummary)
+
+lag_model <- lagsarlm(
+  formula = formula2,
+  data = dfw_data_for_model,
+  listw= wts
+)
+summary(lag_model,Nagelkerke=TRUE)
+```
+
+## Spatial Error Model
+
+```{r Spatial_Error_Model}
+error_model <- errorsarlm(formula = formula2,
+           data = dfw_data_for_model,
+           listw = wts)
+
+summary(error_model, Nagelkerke = TRUE)
+```
+:::
+
+Unlike the OLS model, the spatial lag model accounts for spatial spillover effects. We can find these differences by considering the model parameters, in addition, the spatial lag model contains a pseudo-R-square which can serve as a comparison with the OLS model's R-square value. Importantly, the spatial error model considers spatial lag in the model's error term. Both the spatial lag and spatial error models are crucial for accounting for spatial autocorrelation. Selecting the appropriate model depends on the type of analysis conducted [@walker2023, 239]. We can also rely on the Moran's I to compare spatial dependence in our models, in our case, the spatial error model outperforms the rest.
+
+```{r Moran}
+Model_Resid <- list(lag_resid = lag_model$residuals,
+                    error_resid= error_model$residuals)
+
+MI_Compare <- lapply(Model_Resid,
+    \(x){
+      moran.test(x,wts)
+      })
+
+MI_Compare
+```
+
+# CONCLUSION
+
+In this post, we set out to try and understand the process of modelling spatial data. Fortunately, [@walker2023] provides a detailed book on this topic. The book and the code contained are fantastic resources for a novice like myself. The book is freely available [online](https://walker-data.com/census-r/). @bivand2013, @schabenberger2017, @lovelace2019, @oyana2021 and @pebesma2023 among others offer R titles in Spatial Analysis. The titles offer a good blend of theory and practical application.
