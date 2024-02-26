@@ -1,0 +1,41 @@
+{
+  "about.qmd": {
+    "about.html": "06cd8347"
+  },
+  "index.qmd": {
+    "index.html": "96bd0f92"
+  },
+  "posts/2021 Ask A Manager Salary Survey/index.qmd": {
+    "index.html": "46547944"
+  },
+  "posts/2021 Department of Basic Education Scraping/index.qmd": {
+    "index.html": "1291ad63"
+  },
+  "posts/2021 Second-Hand Cars in South Africa/Index.qmd": {
+    "Index.html": "9acc96fb"
+  },
+  "posts/2022 Ask A Manager Salary Survey/index.qmd": {
+    "index.html": "de14e5cb"
+  },
+  "posts/2022 Eskom Capacity/index.qmd": {
+    "index.html": "8ec7fb70"
+  },
+  "posts/2022 Food Prices/index.knit.md": {
+    "index.knit.html": "8739fd29"
+  },
+  "posts/2022 State Capture Report 1/index.qmd": {
+    "index.html": "c02a59e3"
+  },
+  "posts/2023 South African Macroeconomic Database/Index.qmd": {
+    "Index.html": "e54a0dae"
+  },
+  "posts/2023 Spam Email Classification/Index.qmd": {
+    "Index.html": "456c949d"
+  },
+  "posts/2023 TidyTuesday Week 1/index.qmd": {
+    "index.html": "611d56b8"
+  },
+  "posts/2023 US Census Data/index.qmd": {
+    "index.html": "bc5b57e1"
+  }
+}

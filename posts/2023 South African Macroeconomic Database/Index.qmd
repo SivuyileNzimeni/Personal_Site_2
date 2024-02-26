@@ -1,0 +1,143 @@
+---
+title: "2023 South African Macroeconomic Database"
+image: "Codera_Analytics_Logo.jpg"
+image-alt: "The image contains a logo of Codera Analytics"
+lang: "en-GB"
+date: "June 21,2023"
+author: "Sivuyile Nzimeni"
+description: "This post walks-through accessing South African Macroeconomic Data in South Africa through the SAMADB package" 
+categories: [api,data cleaning,visualisation]
+fig-dpi: 300
+fig-align: 'center'
+fig-cap-location: 'top'
+code-copy: true
+code-line-numbers: true
+page-layout: 'article'
+cap-location: 'margin'
+number-sections: true
+toc: true
+lot: true
+lof: true
+toc-title: 'CONTENTS'
+execute: 
+  echo: true
+  warning: false
+---
+
+# INTRODUCTION
+
+CRAN Task Views contain important updates on packages, databases and other developments in the R community. Among the packages listed in the [Time Series](https://cran.r-project.org/web/views/TimeSeries.html) task view is the [SAMADB](https://cran.r-project.org/web/packages/samadb/index.html) R packages maintained by the Department of Economics at Stellenbosch University. The packages relies on [EconData](https://www.econdata.co.za/) for weekly updates on South African macroeconomic data from Statistics South Africa(StatsSA) and the South African Reserve Bank (SARB).
+
+StatsSA and SARB are among a few governmental organisations that regularly publish data. Data collection can be a bit combersome since the data are often published in xlsx, csv or an exotic formats. In addition, the data often has multiple versions, to include, more recent data.Effectively, the package streamlines the data access via standardising,versioning and storing the data from the above mentioned institutions.
+
+```{r Libraries}
+#| warning: false
+#| message: false
+
+lapply(c("dplyr","stringr","janitor","samadb",
+         "reactable","reactablefmtr","ggplot2",
+         "ggthemes"),
+       require,character.only = TRUE) |> 
+  suppressMessages() |> 
+  suppressWarnings()
+extrafont::loadfonts(device = "win")
+theme_set(theme_minimal())
+```
+
+## AVAILABLE DATASETS
+
+The table below provides an interactive table of all the datasets available from the package. The table is derived from the `sm_datasets()` function, which returns a `data.table` object containing important such as the dataset id, the full name of the data, frequency of publication along with the number of records and series available.
+
+```{r Available_Data}
+#| fig-cap: "SAMADB_Datasets"
+sm_datasets() |> 
+  reactable(theme = espn(),
+            defaultColDef = colDef(),
+            searchable = TRUE,
+            filterable = TRUE)
+```
+
+In our walk-through, we rely on the Motor Trade sales from Statistics South Africa. The data ranges from 1998-01-01 - 2023-02-01, collected monthly. Below, we illustrade how to a straight-forward way of collecting the data from the EconData database. We specify the `dsid` listed in table above. Thereafter, replace variable names with their labels.
+
+::: {.callout-note title="Labelled Variables"}
+Many statistical analysis packages (SPSS,SAS and Stata etc.) utilise labels in their data analysis. This affords researchers the opportunity to encapsulate assign text labels with the associated values. In R it possible to make use of `labelled vectors` or `factors` without losing meaningful information.
+:::
+
+```{r Motor_Vehicle_Trade}
+Motor_Trade <- sm_data(dsid="MOTOR_TRADE")|>data.frame()
+
+Variable_Labels <- labelled::var_label(Motor_Trade)
+
+NULL -> names(Variable_Labels)
+Variable_Labels <- unlist(Variable_Labels)
+
+Variable_Labels <- ifelse(is.na(Variable_Labels),"Date",Variable_Labels)
+
+names(Motor_Trade) <- Variable_Labels
+
+Motor_Trade <- Motor_Trade |> 
+  clean_names() |> 
+  labelled::remove_var_label()
+```
+
+With the data in hand, we can explore the dataset further, such as obtaining an overview of completeness(or lack thereof) of the dataset. Here, we rely on the `skimr` package to fulfil this task.
+
+```{r Missing_Data}
+#| cap-location: top
+#| fig-cap: 2023 Motor Trade Overview
+Motor_Trade |>
+  skimr::skim()
+```
+
+The dataset contains some missing data from 1998-01-01 to 2005-08-01. Fortunately, there is a pattern in the missing values. Data was not collect for variables listed. From 2005-09-01 onward, StatsSA started collecting more detailed information about motor trade sector.
+
+```{r Data_Cleaning}
+Motor_Trade <- Motor_Trade[!is.na(Motor_Trade$real_income_from_fuel_sales_rand_millions),] |> 
+#Timeseries Features
+    mutate(quarter = lubridate::quarter(date,type= "year.quarter"),
+           month = lubridate::month(date,label=TRUE,abbr=FALSE),
+           year = lubridate::year(date))
+
+row.names(Motor_Trade) <- NULL
+```
+
+```{r Data_Visualisation}
+#| include: true
+#| dpi: 320
+#| fig-cap-location: top
+#| fig-cap: 2005 - 2023 Motor Trade Data
+Motor_Trade |> 
+  ggplot(aes(date,real_income_from_fuel_sales_rand_millions))+
+  geom_line()+
+  labs(title = "2005 - 2023 Motor Trade Data",
+       subtitle = "Real Income From Fuel Sales Rand Millions",
+       y= "fuel sales (R Millions)",
+       x = "year",
+       caption = "Data Source: Krantz,S.2023.'South Africa Macroeconomic Database API'.R package version 0.2.6.\nAvailable from: https://CRAN.R-Project.org/package=samadb'")+
+  theme(text = element_text(family = "IBM Plex Sans"),
+    plot.title = element_text(face = "bold",hjust =0.5),
+        plot.subtitle = element_text(face = "italic",hjust=0.5),
+        plot.caption = element_text(size =7))
+
+```
+
+```{r Forecast}
+library(forecast)
+
+Fuel_Sales_Ts <- ts(Motor_Trade[,c("real_income_from_fuel_sales_rand_millions")],
+   start = c(2005,09,01),end = c(2023,02,01),frequency = 12)
+
+ggAcf(Fuel_Sales_Ts,ci=0.95,lag.max=20)
+
+autoplot(Fuel_Sales_Ts)+
+  autolayer(meanf(Fuel_Sales_Ts,lambda = 0,h=12),series = "Mean", PI=F)+
+  autolayer(rwf(Fuel_Sales_Ts,h=12,lambda =0),series= "Naive",PI=F)+
+  autolayer(rwf(Fuel_Sales_Ts,h=12,lambda = 0,drift=T,biasadj = T),series="Drift",PI=F)+
+  ggtitle(label = "2005 - 2024: Real Income From Fuel Sales",
+        subtitle = "(R) millions including forecast for 2024")+
+  labs(caption = "Data Source: Krantz,S.2023.'South Africa Macroeconomic Database API'.R package version 0.2.6.\nAvailable from: https://CRAN.R-Project.org/package=samadb'")+
+  theme(text = element_text("IBM Plex Sans"),
+        plot.title = element_text(face = "bold",hjust=0.5),
+        plot.subtitle = element_text(face = "italic",hjust=0.5),
+        plot.caption = element_text(face = "italic",hjust=-0.01,size =6))
+```
