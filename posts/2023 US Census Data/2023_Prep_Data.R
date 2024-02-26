@@ -1,6 +1,6 @@
 # Libraries ---------------------------------------------------------------
 lapply(c("tidyverse","tidycensus","segregation",
-         "tigris","sf"),
+         "tigris","sf","tmap"),
        require,character.only = TRUE) |> 
   suppressWarnings() |> 
   suppressMessages() |> 

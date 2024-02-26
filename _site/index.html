@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.90">
+<meta name="generator" content="quarto-1.4.549">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -17,7 +17,7 @@ div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
 ul.task-list{list-style: none;}
 ul.task-list li input[type="checkbox"] {
   width: 0.8em;
-  margin: 0 0.8em 0.2em -1.6em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
 </style>
@@ -49,7 +49,13 @@ ul.task-list li input[type="checkbox"] {
   "collapse-after": 3,
   "panel-placement": "end",
   "type": "overlay",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -58,8 +64,10 @@ ul.task-list li input[type="checkbox"] {
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
-    "search-submit-button-title": "Submit"
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
   }
 }</script>
 <script>
@@ -72,9 +80,10 @@ ul.task-list li input[type="checkbox"] {
     }
 
     const options = {
-      valueNames: ['listing-title','listing-author','listing-date','listing-image','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
-      
-      searchColumns: ["listing-title","listing-author","listing-date","listing-image","listing-description","listing-categories"],
+      valueNames: ['listing-date','listing-title','listing-author','listing-image','listing-description','listing-categories',{ data: ['index'] },{ data: ['categories'] },{ data: ['listing-date-sort'] },{ data: ['listing-file-modified-sort'] }],
+      page: 5,
+    pagination: { item: "<li class='page-item'><a class='page page-link' href='#'></a></li>" },
+      searchColumns: ["listing-date","listing-title","listing-author","listing-image","listing-description","listing-categories"],
     };
 
     window['quarto-listings'] = window['quarto-listings'] || {};
@@ -92,7 +101,35 @@ ul.task-list li input[type="checkbox"] {
   })
   </script>
 
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 <meta name="twitter:title" content="Sivuyile Nzimeni - Posts">
 <meta name="twitter:creator" content="@Sivu_Nzimeni">
@@ -104,43 +141,43 @@ ul.task-list li input[type="checkbox"] {
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg navbar-dark ">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container">
+      <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="./index.html">
     <span class="navbar-title">Sivuyile Nzimeni</span>
     </a>
   </div>
+            <div id="quarto-search" class="" title="Search"></div>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./about.html" rel="" target="">
- <span class="menu-text">About</span></a>
+    <a class="nav-link" href="./about.html"> 
+<span class="menu-text">About</span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://twitter.com/Sivu_Nzimeni" rel="" target=""><i class="bi bi-twitter" role="img">
+    <a class="nav-link" href="https://twitter.com/Sivu_Nzimeni"> <i class="bi bi-twitter" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/SivuyileNzimeni" rel="" target=""><i class="bi bi-github" role="img">
+    <a class="nav-link" href="https://github.com/SivuyileNzimeni"> <i class="bi bi-github" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://za.linkedin.com/in/sivuyile-nzimeni-98006ba0" rel="" target=""><i class="bi bi-linkedin" role="img">
+    <a class="nav-link" href="https://za.linkedin.com/in/sivuyile-nzimeni-98006ba0"> <i class="bi bi-linkedin" role="img">
 </i> 
- <span class="menu-text"></span></a>
+<span class="menu-text"></span></a>
   </li>  
 </ul>
-              <div class="quarto-toggle-container">
-                  <a href="" class="quarto-color-scheme-toggle nav-link" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
-              </div>
-              <div id="quarto-search" class="" title="Search"></div>
           </div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
       </div> <!-- /container-fluid -->
     </nav>
 </header>
@@ -150,7 +187,7 @@ ul.task-list li input[type="checkbox"] {
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         
-    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(9)</span></div><div class="category" data-category="API">API <span class="quarto-category-count">(2)</span></div><div class="category" data-category="Data Cleaning">Data Cleaning <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Data Modelling">Data Modelling <span class="quarto-category-count">(1)</span></div><div class="category" data-category="data analysis">data analysis <span class="quarto-category-count">(2)</span></div><div class="category" data-category="data cleaning">data cleaning <span class="quarto-category-count">(3)</span></div><div class="category" data-category="data modelling">data modelling <span class="quarto-category-count">(2)</span></div><div class="category" data-category="legal">legal <span class="quarto-category-count">(1)</span></div><div class="category" data-category="news">news <span class="quarto-category-count">(3)</span></div><div class="category" data-category="politics">politics <span class="quarto-category-count">(1)</span></div><div class="category" data-category="spatial data">spatial data <span class="quarto-category-count">(2)</span></div><div class="category" data-category="table">table <span class="quarto-category-count">(1)</span></div><div class="category" data-category="visualisation">visualisation <span class="quarto-category-count">(3)</span></div><div class="category" data-category="web-scraping">web-scraping <span class="quarto-category-count">(2)</span></div></div></div>
+    <h5 class="quarto-listing-category-title">Categories</h5><div class="quarto-listing-category category-default"><div class="category" data-category="">All <span class="quarto-category-count">(9)</span></div><div class="category" data-category="Data Cleaning">Data Cleaning <span class="quarto-category-count">(1)</span></div><div class="category" data-category="Data Modelling">Data Modelling <span class="quarto-category-count">(1)</span></div><div class="category" data-category="api">api <span class="quarto-category-count">(1)</span></div><div class="category" data-category="data analysis">data analysis <span class="quarto-category-count">(2)</span></div><div class="category" data-category="data cleaning">data cleaning <span class="quarto-category-count">(5)</span></div><div class="category" data-category="data modelling">data modelling <span class="quarto-category-count">(3)</span></div><div class="category" data-category="legal">legal <span class="quarto-category-count">(1)</span></div><div class="category" data-category="news">news <span class="quarto-category-count">(1)</span></div><div class="category" data-category="politics">politics <span class="quarto-category-count">(1)</span></div><div class="category" data-category="spatial data">spatial data <span class="quarto-category-count">(2)</span></div><div class="category" data-category="visualisation">visualisation <span class="quarto-category-count">(4)</span></div><div class="category" data-category="web-scraping">web-scraping <span class="quarto-category-count">(2)</span></div></div></div>
 <!-- main -->
 <main class="content column-page-left" id="quarto-document-content">
 
@@ -161,7 +198,7 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<div class="quarto-title-meta">
+<div class="quarto-title-meta column-page-left">
 
     
   
@@ -169,24 +206,132 @@ ul.task-list li input[type="checkbox"] {
   </div>
   
 
+
 </header>
 
 
 
 
 
-<div class="quarto-listing quarto-listing-container-grid" id="listing-listing">
-<div class="list grid quarto-listing-cols-3">
-<div class="g-col-1" data-index="0" data-categories="spatial data,data cleaning,visualisation" data-listing-date-sort="1681423200000" data-listing-file-modified-sort="1681504163314" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="9.245">
-<a href="./posts/2023 US Census Data/index.html" class="quarto-grid-link">
-<div class="quarto-grid-item card h-100 card-left">
-<p class="card-img-top">
-<img src="./posts/2023 US Census Data/DC_Washington_West_20191122_TM.jpg" class="thumbnail-image card-img" style="height: 150px;" alt="A map of West Washington DC sourced from the US Department of the interior US Geological Survey">
-</p>
-<div class="card-body post-contents">
-<h5 class="no-anchor card-title listing-title">
-2023 Spatial Data Analysis
-</h5>
+
+<div class="quarto-listing quarto-listing-container-default" id="listing-listing">
+<div class="listing-actions-group">
+   <div class="input-group input-group-sm quarto-listing-sort">
+     <span class="input-group-text"><i class="bi bi-sort-down"></i></span>
+     <select id="listing-listing-sort" class="form-select" aria-label="Order By" onchange="window['quarto-listings']['listing-listing'].sort(this.options[this.selectedIndex].value, { order: this.options[this.selectedIndex].getAttribute('data-direction')})">
+       <option value="" disabled="" selected="" hidden="">Order By</option>
+       <option value="index" data-direction="asc">Default</option>
+         <option value="listing-title" data-direction="asc">
+          Title
+        </option>
+         <option value="listing-date-sort" data-direction="asc">
+          Date - Oldest
+        </option>
+         <option value="listing-date-sort" data-direction="desc">
+          Date - Newest
+        </option>
+         <option value="listing-author" data-direction="asc">
+          Author
+        </option>
+     </select>
+  </div>
+    <div class="input-group input-group-sm quarto-listing-filter">
+      <span class="input-group-text"><i class="bi bi-search"></i></span>
+      <input type="text" class="search form-control" placeholder="Filter">
+    </div>
+</div>
+<div class="list quarto-listing-default">
+<div class="quarto-post image-right" data-index="0" data-categories="data modelling,data cleaning,visualisation" data-listing-date-sort="1692309600000" data-listing-file-modified-sort="1706671343886" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8" data-listing-word-count-sort="1521">
+<div class="thumbnail">
+<p><a href="./posts/2023 Spam Email Classification/Index.html" class="no-external"></a></p><a href="./posts/2023 Spam Email Classification/Index.html" class="no-external">
+<p><img src="./posts/2023 Spam Email Classification/Spam_Detection.png" class="thumbnail-image" alt="An image illustrating an email folder classified as either spam or not."></p>
+</a><p><a href="./posts/2023 Spam Email Classification/Index.html" class="no-external"></a></p>
+</div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts/2023 Spam Email Classification/Index.html" class="no-external">Spam Emails</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts/2023 Spam Email Classification/Index.html" class="no-external"></a>
+</div>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('data modelling'); return false;">
+data modelling
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('data cleaning'); return false;">
+data cleaning
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('visualisation'); return false;">
+visualisation
+</div>
+</div>
+<div class="listing-description">
+<a href="./posts/2023 Spam Email Classification/Index.html" class="no-external">This post is about building a classification model for spam email detection. We explore a solution for handling an imbalanced dataset.</a>
+</div>
+</div>
+<div class="metadata">
+<a href="./posts/2023 Spam Email Classification/Index.html" class="no-external">
+<div class="listing-date">
+Aug 18, 2023
+</div>
+<div class="listing-author">
+Sivuyile Nzimeni
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="1" data-categories="api,data cleaning,visualisation" data-listing-date-sort="1687298400000" data-listing-file-modified-sort="1706671331067" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4" data-listing-word-count-sort="755">
+<div class="thumbnail">
+<p><a href="./posts/2023 South African Macroeconomic Database/Index.html" class="no-external"></a></p><a href="./posts/2023 South African Macroeconomic Database/Index.html" class="no-external">
+<p><img src="./posts/2023 South African Macroeconomic Database/Codera_Analytics_Logo.jpg" class="thumbnail-image" alt="The image contains a logo of Codera Analytics"></p>
+</a><p><a href="./posts/2023 South African Macroeconomic Database/Index.html" class="no-external"></a></p>
+</div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts/2023 South African Macroeconomic Database/Index.html" class="no-external">2023 South African Macroeconomic Database</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts/2023 South African Macroeconomic Database/Index.html" class="no-external"></a>
+</div>
+<div class="listing-categories">
+<div class="listing-category" onclick="window.quartoListingCategory('api'); return false;">
+api
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('data cleaning'); return false;">
+data cleaning
+</div>
+<div class="listing-category" onclick="window.quartoListingCategory('visualisation'); return false;">
+visualisation
+</div>
+</div>
+<div class="listing-description">
+<a href="./posts/2023 South African Macroeconomic Database/Index.html" class="no-external">This post walks-through accessing South African Macroeconomic Data in South Africa through the SAMADB package</a>
+</div>
+</div>
+<div class="metadata">
+<a href="./posts/2023 South African Macroeconomic Database/Index.html" class="no-external">
+<div class="listing-date">
+Jun 21, 2023
+</div>
+<div class="listing-author">
+Sivuyile Nzimeni
+</div>
+</a>
+</div>
+</div>
+<div class="quarto-post image-right" data-index="2" data-categories="spatial data,data cleaning,visualisation" data-listing-date-sort="1681423200000" data-listing-file-modified-sort="1706750828164" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="10" data-listing-word-count-sort="1882">
+<div class="thumbnail">
+<p><a href="./posts/2023 US Census Data/index.html" class="no-external"></a></p><a href="./posts/2023 US Census Data/index.html" class="no-external">
+<p><img src="./posts/2023 US Census Data/DC_Washington_West_20191122_TM.jpg" class="thumbnail-image" alt="A map of West Washington DC sourced from the US Department of the interior US Geological Survey"></p>
+</a><p><a href="./posts/2023 US Census Data/index.html" class="no-external"></a></p>
+</div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts/2023 US Census Data/index.html" class="no-external">2023 Spatial Data Analysis</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts/2023 US Census Data/index.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('spatial data'); return false;">
 spatial data
@@ -198,31 +343,34 @@ data cleaning
 visualisation
 </div>
 </div>
-<div class="card-text listing-description">
-Chapter 8 of Analysing US Census Data Methods, Maps and Models in R. In this post, we work through the code contained in the above-mentioned book. This chapter is important…
+<div class="listing-description">
+<a href="./posts/2023 US Census Data/index.html" class="no-external">Chapter 8 of Analysing US Census Data Methods, Maps and Models in R. In this post, we work through the code contained in the above-mentioned book. This chapter is important as includes sections on spatial feature engineering, modelling and visualisation.</a>
 </div>
-<div class="card-attribution card-text-small justify">
-<div class="listing-author">
-Sivuyile Nzimeni
 </div>
+<div class="metadata">
+<a href="./posts/2023 US Census Data/index.html" class="no-external">
 <div class="listing-date">
 Apr 14, 2023
 </div>
-</div>
-</div>
+<div class="listing-author">
+Sivuyile Nzimeni
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="1" data-categories="spatial data,data cleaning,visualisation" data-listing-date-sort="1672956000000" data-listing-file-modified-sort="1677923630422" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="8.4">
-<a href="./posts/2023 TidyTuesday Week 1/index.html" class="quarto-grid-link">
-<div class="quarto-grid-item card h-100 card-left">
-<p class="card-img-top">
-<img src="./posts/2023 TidyTuesday Week 1/download.jpg" class="thumbnail-image card-img" style="height: 150px;" alt="Choropleth map of election results in South Africa in 2021">
-</p>
-<div class="card-body post-contents">
-<h5 class="no-anchor card-title listing-title">
-2023 TidyTuesday Week 1
-</h5>
+</div>
+<div class="quarto-post image-right" data-index="3" data-categories="spatial data,data cleaning,visualisation" data-listing-date-sort="1672956000000" data-listing-file-modified-sort="1706725804693" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="9" data-listing-word-count-sort="1680">
+<div class="thumbnail">
+<p><a href="./posts/2023 TidyTuesday Week 1/index.html" class="no-external"></a></p><a href="./posts/2023 TidyTuesday Week 1/index.html" class="no-external">
+<p><img src="./posts/2023 TidyTuesday Week 1/download.jpg" class="thumbnail-image" alt="Choropleth map of election results in South Africa in 2021"></p>
+</a><p><a href="./posts/2023 TidyTuesday Week 1/index.html" class="no-external"></a></p>
+</div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts/2023 TidyTuesday Week 1/index.html" class="no-external">2023 TidyTuesday Week 1</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts/2023 TidyTuesday Week 1/index.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('spatial data'); return false;">
 spatial data
@@ -234,31 +382,34 @@ data cleaning
 visualisation
 </div>
 </div>
-<div class="card-text listing-description">
-Visualising Spatial Data in R using data from the IEC and Municipal Dermacation Board in South Africa.
+<div class="listing-description">
+<a href="./posts/2023 TidyTuesday Week 1/index.html" class="no-external">Visualising Spatial Data in R using data from the IEC and Municipal Dermacation Board in South Africa.</a>
 </div>
-<div class="card-attribution card-text-small justify">
-<div class="listing-author">
-Sivuyile Nzimeni
 </div>
+<div class="metadata">
+<a href="./posts/2023 TidyTuesday Week 1/index.html" class="no-external">
 <div class="listing-date">
 Jan 6, 2023
 </div>
-</div>
-</div>
+<div class="listing-author">
+Sivuyile Nzimeni
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="2" data-categories="Data Modelling,Data Cleaning" data-listing-date-sort="1671314400000" data-listing-file-modified-sort="1671571499709" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="14.115">
-<a href="./posts/2022 Ask A Manager Salary Survey/index.html" class="quarto-grid-link">
-<div class="quarto-grid-item card h-100 card-left">
-<p class="card-img-top">
-<img src="./posts/2022 Ask A Manager Salary Survey/Ask_A_Manager_2022.png" class="thumbnail-image card-img" style="height: 150px;" alt="Ask A Manager Logo 2022">
-</p>
-<div class="card-body post-contents">
-<h5 class="no-anchor card-title listing-title">
-2022 Ask A Manager Salary Survey
-</h5>
+</div>
+<div class="quarto-post image-right" data-index="4" data-categories="Data Modelling,Data Cleaning" data-listing-date-sort="1671314400000" data-listing-file-modified-sort="1706671271333" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="15" data-listing-word-count-sort="2823">
+<div class="thumbnail">
+<p><a href="./posts/2022 Ask A Manager Salary Survey/index.html" class="no-external"></a></p><a href="./posts/2022 Ask A Manager Salary Survey/index.html" class="no-external">
+<p><img src="./posts/2022 Ask A Manager Salary Survey/Ask_A_Manager_2022.png" class="thumbnail-image" alt="Ask A Manager Logo 2022"></p>
+</a><p><a href="./posts/2022 Ask A Manager Salary Survey/index.html" class="no-external"></a></p>
+</div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts/2022 Ask A Manager Salary Survey/index.html" class="no-external">2022 Ask A Manager Salary Survey</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts/2022 Ask A Manager Salary Survey/index.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('Data Modelling'); return false;">
 Data Modelling
@@ -267,103 +418,34 @@ Data Modelling
 Data Cleaning
 </div>
 </div>
-<div class="card-text listing-description">
-Analysing the 2022 Ask A Manager Salary Survey. In this post, we detail the data preprocessing procedure, feature-selection and modelling process to estimate salaries among…
+<div class="listing-description">
+<a href="./posts/2022 Ask A Manager Salary Survey/index.html" class="no-external">Analysing the 2022 Ask A Manager Salary Survey. In this post, we detail the data preprocessing procedure, feature-selection and modelling process to estimate salaries among respondents.</a>
 </div>
-<div class="card-attribution card-text-small justify">
-<div class="listing-author">
-Sivuyile Nzimeni
 </div>
+<div class="metadata">
+<a href="./posts/2022 Ask A Manager Salary Survey/index.html" class="no-external">
 <div class="listing-date">
 Dec 18, 2022
 </div>
-</div>
-</div>
-</div>
-</a>
-</div>
-<div class="g-col-1" data-index="3" data-categories="news,API,visualisation" data-listing-date-sort="1663797600000" data-listing-file-modified-sort="1664627924053" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5.5">
-<a href="./posts/2022 Eskom Capacity/index.html" class="quarto-grid-link">
-<div class="quarto-grid-item card h-100 card-left">
-<p class="card-img-top">
-<img src="./posts/2022 Eskom Capacity/Eskom_Logo.jpg" class="thumbnail-image card-img" style="height: 150px;">
-</p>
-<div class="card-body post-contents">
-<h5 class="no-anchor card-title listing-title">
-2022 Eskom Unavailabe Capacity
-</h5>
-<div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('news'); return false;">
-news
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('API'); return false;">
-API
-</div>
-<div class="listing-category" onclick="window.quartoListingCategory('visualisation'); return false;">
-visualisation
-</div>
-</div>
-<div class="card-text listing-description">
-Visualising Unavailable Energy in South Africa from 2018 to 2022.
-</div>
-<div class="card-attribution card-text-small justify">
 <div class="listing-author">
 Sivuyile Nzimeni
 </div>
-<div class="listing-date">
-Sep 22, 2022
-</div>
-</div>
-</div>
-</div>
 </a>
 </div>
-<div class="g-col-1" data-index="4" data-categories="news,API,table" data-listing-date-sort="1654293600000" data-listing-file-modified-sort="1660996039450" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="1.22">
-<a href="./posts/2022 Food Prices/index.html" class="quarto-grid-link">
-<div class="quarto-grid-item card h-100 card-left">
-<p class="card-img-top">
-<img src="./posts/2022 Food Prices/Food_Basket.jpg" class="thumbnail-image card-img" style="height: 150px;">
-</p>
-<div class="card-body post-contents">
-<h5 class="no-anchor card-title listing-title">
-2022 Food Prices: Part 1
-</h5>
-<div class="listing-categories">
-<div class="listing-category" onclick="window.quartoListingCategory('news'); return false;">
-news
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('API'); return false;">
-API
+<div class="quarto-post image-right" data-index="5" data-categories="web-scraping,data analysis,data modelling" data-listing-date-sort="1645999200000" data-listing-file-modified-sort="1706671702750" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="10" data-listing-word-count-sort="1892">
+<div class="thumbnail">
+<p><a href="./posts/2021 Second-Hand Cars in South Africa/Index.html" class="no-external"></a></p><a href="./posts/2021 Second-Hand Cars in South Africa/Index.html" class="no-external">
+<p><img data-src="./posts/2021 Second-Hand Cars in South Africa/BMW_X3.jpg" class="thumbnail-image"></p>
+</a><p><a href="./posts/2021 Second-Hand Cars in South Africa/Index.html" class="no-external"></a></p>
 </div>
-<div class="listing-category" onclick="window.quartoListingCategory('table'); return false;">
-table
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts/2021 Second-Hand Cars in South Africa/Index.html" class="no-external">South African Car Prices</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts/2021 Second-Hand Cars in South Africa/Index.html" class="no-external"></a>
 </div>
-</div>
-<div class="card-text listing-description">
-This post explores 2020 - 2022 Food Prices in South Africa
-</div>
-<div class="card-attribution card-text-small justify">
-<div class="listing-author">
-Sivuyile Nzimeni
-</div>
-<div class="listing-date">
-Jun 4, 2022
-</div>
-</div>
-</div>
-</div>
-</a>
-</div>
-<div class="g-col-1" data-index="5" data-categories="web-scraping,data analysis,data modelling" data-listing-date-sort="1645999200000" data-listing-file-modified-sort="1659882132629" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="9.46">
-<a href="./posts/2021 Second-Hand Cars in South Africa/Index.html" class="quarto-grid-link">
-<div class="quarto-grid-item card h-100 card-left">
-<p class="card-img-top">
-<img src="./posts/2021 Second-Hand Cars in South Africa/BMW_X3.jpg" class="thumbnail-image card-img" style="height: 150px;">
-</p>
-<div class="card-body post-contents">
-<h5 class="no-anchor card-title listing-title">
-South African Car Prices
-</h5>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('web-scraping'); return false;">
 web-scraping
@@ -375,31 +457,34 @@ data analysis
 data modelling
 </div>
 </div>
-<div class="card-text listing-description">
-This post details the data scraping process for obtaining data from a South African online vehicle marketplate. In addition, the post shares the results of a linear…
+<div class="listing-description">
+<a href="./posts/2021 Second-Hand Cars in South Africa/Index.html" class="no-external">This post details the data scraping process for obtaining data from a South African online vehicle marketplate. In addition, the post shares the results of a linear regression model to estimate determinants of vehicle prices.</a>
 </div>
-<div class="card-attribution card-text-small justify">
-<div class="listing-author">
-Sivuyile Nzimeni
 </div>
+<div class="metadata">
+<a href="./posts/2021 Second-Hand Cars in South Africa/Index.html" class="no-external">
 <div class="listing-date">
 Feb 28, 2022
 </div>
-</div>
-</div>
+<div class="listing-author">
+Sivuyile Nzimeni
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="6" data-categories="news,politics,legal" data-listing-date-sort="1641333600000" data-listing-file-modified-sort="1659882840053" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5.105">
-<a href="./posts/2022 State Capture Report 1/index.html" class="quarto-grid-link">
-<div class="quarto-grid-item card h-100 card-left">
-<p class="card-img-top">
-<img src="./posts/2022 State Capture Report 1/State_Capture_Report_1.jpg" class="thumbnail-image card-img" style="height: 150px;">
-</p>
-<div class="card-body post-contents">
-<h5 class="no-anchor card-title listing-title">
-State of Capture Commission Report Part 1: Notes
-</h5>
+</div>
+<div class="quarto-post image-right" data-index="6" data-categories="news,politics,legal" data-listing-date-sort="1641333600000" data-listing-file-modified-sort="1706671083514" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6" data-listing-word-count-sort="1021">
+<div class="thumbnail">
+<p><a href="./posts/2022 State Capture Report 1/index.html" class="no-external"></a></p><a href="./posts/2022 State Capture Report 1/index.html" class="no-external">
+<p><img data-src="./posts/2022 State Capture Report 1/State_Capture_Report_1.jpg" class="thumbnail-image"></p>
+</a><p><a href="./posts/2022 State Capture Report 1/index.html" class="no-external"></a></p>
+</div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts/2022 State Capture Report 1/index.html" class="no-external">State of Capture Commission Report Part 1: Notes</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts/2022 State Capture Report 1/index.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('news'); return false;">
 news
@@ -411,31 +496,34 @@ politics
 legal
 </div>
 </div>
-<div class="card-text listing-description">
-This posts is the first installment of notes from reading the State of Capture Commission’s Report Part 1. This post post focuses on the first few pages of the report.
+<div class="listing-description">
+<a href="./posts/2022 State Capture Report 1/index.html" class="no-external">This posts is the first installment of notes from reading the State of Capture Commission’s Report Part 1. This post post focuses on the first few pages of the report.</a>
 </div>
-<div class="card-attribution card-text-small justify">
-<div class="listing-author">
-Sivuyile Nzimeni
 </div>
+<div class="metadata">
+<a href="./posts/2022 State Capture Report 1/index.html" class="no-external">
 <div class="listing-date">
 Jan 5, 2022
 </div>
-</div>
-</div>
+<div class="listing-author">
+Sivuyile Nzimeni
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="7" data-categories="web-scraping,data cleaning" data-listing-date-sort="1640815200000" data-listing-file-modified-sort="1659883295901" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="4.555">
-<a href="./posts/2021 Department of Basic Education Scraping/index.html" class="quarto-grid-link">
-<div class="quarto-grid-item card h-100 card-left">
-<p class="card-img-top">
-<img src="./posts/2021 Department of Basic Education Scraping/DBE_Logo.png" class="thumbnail-image card-img" style="height: 150px;">
-</p>
-<div class="card-body post-contents">
-<h5 class="no-anchor card-title listing-title">
-Department of Basic Education: Schools Database
-</h5>
+</div>
+<div class="quarto-post image-right" data-index="7" data-categories="web-scraping,data cleaning" data-listing-date-sort="1640815200000" data-listing-file-modified-sort="1706671230843" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="5" data-listing-word-count-sort="911">
+<div class="thumbnail">
+<p><a href="./posts/2021 Department of Basic Education Scraping/index.html" class="no-external"></a></p><a href="./posts/2021 Department of Basic Education Scraping/index.html" class="no-external">
+<p><img data-src="./posts/2021 Department of Basic Education Scraping/DBE_Logo.png" class="thumbnail-image"></p>
+</a><p><a href="./posts/2021 Department of Basic Education Scraping/index.html" class="no-external"></a></p>
+</div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts/2021 Department of Basic Education Scraping/index.html" class="no-external">Department of Basic Education: Schools Database</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts/2021 Department of Basic Education Scraping/index.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('web-scraping'); return false;">
 web-scraping
@@ -444,31 +532,34 @@ web-scraping
 data cleaning
 </div>
 </div>
-<div class="card-text listing-description">
-This post details the data scraping process for obtaining the schools database of from the Department of Basic Education in South Africa.
+<div class="listing-description">
+<a href="./posts/2021 Department of Basic Education Scraping/index.html" class="no-external">This post details the data scraping process for obtaining the schools database of from the Department of Basic Education in South Africa.</a>
 </div>
-<div class="card-attribution card-text-small justify">
-<div class="listing-author">
-Sivuyile Nzimeni
 </div>
+<div class="metadata">
+<a href="./posts/2021 Department of Basic Education Scraping/index.html" class="no-external">
 <div class="listing-date">
 Dec 30, 2021
 </div>
-</div>
-</div>
+<div class="listing-author">
+Sivuyile Nzimeni
 </div>
 </a>
 </div>
-<div class="g-col-1" data-index="8" data-categories="data analysis,data modelling" data-listing-date-sort="1640383200000" data-listing-file-modified-sort="1659882235265" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="6.985">
-<a href="./posts/2021 Ask A Manager Salary Survey/index.html" class="quarto-grid-link">
-<div class="quarto-grid-item card h-100 card-left">
-<p class="card-img-top">
-<img src="./posts/2021 Ask A Manager Salary Survey/Ask_A_Manager_Logo.png" class="thumbnail-image card-img" style="height: 150px;">
-</p>
-<div class="card-body post-contents">
-<h5 class="no-anchor card-title listing-title">
-Ask A Manager Survey
-</h5>
+</div>
+<div class="quarto-post image-right" data-index="8" data-categories="data analysis,data modelling" data-listing-date-sort="1640383200000" data-listing-file-modified-sort="1706671210857" data-listing-date-modified-sort="NaN" data-listing-reading-time-sort="7" data-listing-word-count-sort="1397">
+<div class="thumbnail">
+<p><a href="./posts/2021 Ask A Manager Salary Survey/index.html" class="no-external"></a></p><a href="./posts/2021 Ask A Manager Salary Survey/index.html" class="no-external">
+<p><img data-src="./posts/2021 Ask A Manager Salary Survey/Ask_A_Manager_Logo.png" class="thumbnail-image"></p>
+</a><p><a href="./posts/2021 Ask A Manager Salary Survey/index.html" class="no-external"></a></p>
+</div>
+<div class="body">
+<h3 class="no-anchor listing-title">
+<a href="./posts/2021 Ask A Manager Salary Survey/index.html" class="no-external">Ask A Manager Survey</a>
+</h3>
+<div class="listing-subtitle">
+<a href="./posts/2021 Ask A Manager Salary Survey/index.html" class="no-external"></a>
+</div>
 <div class="listing-categories">
 <div class="listing-category" onclick="window.quartoListingCategory('data analysis'); return false;">
 data analysis
@@ -477,25 +568,28 @@ data analysis
 data modelling
 </div>
 </div>
-<div class="card-text listing-description">
-This post is about the 2021 Ask A Manager Survey analysis. It provides an overview of the data analysis process attempting to fit a linear regression model to explain…
+<div class="listing-description">
+<a href="./posts/2021 Ask A Manager Salary Survey/index.html" class="no-external">This post is about the 2021 Ask A Manager Survey analysis. It provides an overview of the data analysis process attempting to fit a linear regression model to explain variances in reported salaries among the respondents</a>
 </div>
-<div class="card-attribution card-text-small justify">
-<div class="listing-author">
-Sivuyile Nzimeni
 </div>
+<div class="metadata">
+<a href="./posts/2021 Ask A Manager Salary Survey/index.html" class="no-external">
 <div class="listing-date">
 Dec 25, 2021
 </div>
-</div>
-</div>
+<div class="listing-author">
+Sivuyile Nzimeni
 </div>
 </a>
+</div>
 </div>
 </div>
 <div class="listing-no-matching d-none">
 No matching items
 </div>
+<nav id="listing-pagination" class="listing-pagination" aria-label="Page Navigation">
+  <ul class="pagination"></ul>
+</nav>
 </div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
@@ -538,6 +632,33 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       } else {
         el.classList.add('notransition');
       }
+    }
+  }
+  const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+    const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+    const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+    let newTheme = '';
+    if(darkModeDefault) {
+      newTheme = isAlternate ? baseTheme : alternateTheme;
+    } else {
+      newTheme = isAlternate ? alternateTheme : baseTheme;
+    }
+    const changeGiscusTheme = () => {
+      // From: https://github.com/giscus/giscus/issues/336
+      const sendMessage = (message) => {
+        const iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+      }
+      sendMessage({
+        setConfig: {
+          theme: newTheme
+        }
+      });
+    }
+    const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+    if (isGiscussLoaded) {
+      changeGiscusTheme();
     }
   }
   const toggleColorMode = (alternate) => {
@@ -606,13 +727,15 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       return localAlternateSentinel;
     }
   }
-  let localAlternateSentinel = 'default';
+  const darkModeDefault = false;
+  let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
   // Dark / light mode switch
   window.quartoToggleColorScheme = () => {
     // Read the current dark / light value 
     let toAlternate = !hasAlternateSentinel();
     toggleColorMode(toAlternate);
     setStyleSentinel(toAlternate);
+    toggleGiscusIfUsed(toAlternate, darkModeDefault);
   };
   // Ensure there is a toggle, if there isn't float one in the top right
   if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
@@ -639,9 +762,23 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     icon: icon
   };
   anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
   const clipboard = new window.ClipboardJS('.code-copy-button', {
-    target: function(trigger) {
-      return trigger.previousElementSibling;
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
     }
   });
   clipboard.on('success', function(e) {
@@ -677,10 +814,9 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     // clear code selection
     e.clearSelection();
   });
-  function tippyHover(el, contentFn) {
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -690,8 +826,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -706,6 +851,238 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       return note.innerHTML;
     });
   }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
   const findCites = (el) => {
     const parentEl = el.parentElement;
     if (parentEl) {
@@ -746,6 +1123,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
+
 
 
 

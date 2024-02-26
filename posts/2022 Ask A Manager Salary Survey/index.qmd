@@ -17,8 +17,6 @@ cap-location: 'margin'
 number-sections: true
 toc: true
 toc-title: 'CONTENTS'
-listing:
-  contents: post
 execute: 
   echo: true
   warning: false

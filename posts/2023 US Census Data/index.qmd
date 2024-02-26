@@ -17,8 +17,6 @@ cap-location: 'margin'
 number-sections: true
 toc: true
 toc-title: 'CONTENTS'
-listing:
-  contents: post
 execute: 
   echo: true
   warning: false
@@ -120,6 +118,7 @@ The results of the multi-group dissimilarity index are largely similar with Los 
 
 ```{r Visualising_Segregation_Difference}
 #| fig-cap: California Area Diversity Gradient
+
 la_local_seg <- ca_urban_data %>%
   filter(str_detect(urban_name,"Los Angeles")) %>%
   mutual_local(
@@ -129,17 +128,15 @@ la_local_seg <- ca_urban_data %>%
     wide = TRUE
 )
 
-la_tracts_seg <- tracts("CA", cb = TRUE, year=2019) %>%
-  inner_join(la_local_seg, by = "GEOID")
+la_tracts_seg <- tracts("CA", cb = TRUE, year = 2019) %>%
+  inner_join(la_local_seg, by = "GEOID") 
 
-la_tracts_seg %>%
-  ggplot(aes(fill = ls)) +
-  geom_sf(color = "black") +
-  coord_sf(crs = 26946) +
-  scale_fill_viridis_c(option = "turbo") +
-  theme_void() +
-  labs(fill = "Local\nSegregation\nIndex")+
-  theme(legend.position = "bottom")
+tmap_mode("view")
+tm_shape(la_tracts_seg) + 
+  tm_borders("black",lwd = .5)+
+  tm_polygons("ls",
+              palette = "viridis",
+              title = "Local\nsegregation index")
 ```
 
 # REGRESSION MODELLING
@@ -154,6 +151,7 @@ The code snippet below contains the counties of interest along with the variable
 library(sf)
 library(units)
 library(patchwork)
+library(scales)
 
 dfw_counties <- c("Collin County", "Dallas", "Denton", 
                   "Ellis", "Hunt", "Kaufman", "Rockwall", 
@@ -182,27 +180,39 @@ dfw_data <- get_acs(
   year = 2020,
   progress_bar = FALSE
 ) %>%
-  select(-NAME) %>%
-  st_transform(32138)
+  select(-NAME) 
+```
 
+::: panel-tabset
+## Median Home Value
+
+```{r Map_View_Home_Value}
 library(tidyverse)
 library(patchwork)
 
-mhv_map <- ggplot(dfw_data, aes(fill = log(median_valueE))) + 
-  geom_sf(color = NA) + 
-  scale_fill_viridis_c() + 
-  theme_void() + 
-  labs(fill = "Median home value ")
+tmap_mode("plot")
+mhv_map <- tm_shape(dfw_data) + 
+  tm_borders("black",lwd = .5)+
+  tm_polygons("median_valueE",
+              palette = "viridis",
+              title = "Median home value")
 
+```
+
+## Histogram Home Value
+
+```{r Histogram_Home_Value}
 mhv_histogram <- ggplot(dfw_data, aes(x = log(median_valueE))) + 
   geom_histogram(alpha = 0.5, fill = "#0f204b", color = "#0f204b",
                  bins = 100) + 
   theme_minimal() + 
-  scale_x_continuous(labels = scales::label_number_si(accuracy = 1)) + 
+  scale_x_continuous(labels = label_number(accuracy = 1)) + 
   labs(x = "Median home value")
 
-mhv_map + mhv_histogram
+mhv_map
+mhv_histogram
 ```
+:::
 
 We have explored our outcome variable. The next step is a bit of data processing. Firstly, we create a population density across a standard unit of $1/km^2$. Secondly, we derive a median age of the structure by deducting the 2018. Thirdly, we remove variables ending with M and clean variable names ending with capital letter E. Finally, we fit an OLS model and store the residuals of the model into our Dataframe. The residuals will be used in the spatial regression models down the line.
 

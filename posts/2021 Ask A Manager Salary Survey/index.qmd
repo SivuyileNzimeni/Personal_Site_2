@@ -5,8 +5,6 @@ description: "This post is about the 2021 Ask A Manager Survey analysis. It prov
 date: December 25, 2021
 author: "Sivuyile Nzimeni"
 categories: [data analysis, data modelling]
-listing:
-  contents: posts
 execute: 
   echo: true
   warning: false

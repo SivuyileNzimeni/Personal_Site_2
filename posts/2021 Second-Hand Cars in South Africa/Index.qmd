@@ -5,8 +5,6 @@ description: "This post details the data scraping process for obtaining data fro
 date: "February 28, 2022"
 author: "Sivuyile Nzimeni"
 categories: [web-scraping,data analysis, data modelling]
-listing:
-  contents: posts
 execute: 
   echo: true
   warning: false

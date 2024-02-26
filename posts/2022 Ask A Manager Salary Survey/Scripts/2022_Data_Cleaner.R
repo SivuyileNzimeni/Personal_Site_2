@@ -89,7 +89,7 @@ lapply(as.list(c("rvest","xml2")),
 Currency_Info <- read_html("https://en.wikipedia.org/wiki/List_of_circulating_currencies") |> 
   html_table()
 
-Currency_Info <- Currency_Info[[1]] |> 
+Currency_Info <- Currency_Info[[2]] |> 
   clean_names()
 
 names(Currency_Info) <- gsub("([[:punct:]]{1}\\d{1,}){1,}",

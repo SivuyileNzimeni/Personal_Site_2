@@ -14,7 +14,7 @@ about:
       text: "LinkedIn"
       href: "https://za.linkedin.com/in/sivuyile-nzimeni-98006ba0"
 author: "Sivuyile Nzimeni"
-date: "08/07/2022"
+date: "02/24/2024"
 execute: 
   echo: true
   warning: false
@@ -52,6 +52,8 @@ Nov 2015 - Nov 2016\| **Intern** \| Office of the Dean: Economic and Management 
 6.  Natural Language Processing
 
 ## Publications
+
+Van Zyl, H. Nzimeni, S. 2023. 'An exploration of human capital investment and senior student academic performance at a South African university'.*Southern African Accounting Association Biennial International Conference Proceedings 28-30 June 2023*. ISBN Number: 978-0-6397-7486-2
 
 Nzimeni, S. Mofokeng, M. 2022. 'Automating tutorial attendance register capturing, preliminary results from a pilot project'. *Siyaphumelela 2022: A Saide Project*. Online, 25 - 27 June 2022.
 
