@@ -270,13 +270,13 @@
     "href": "posts/2023 Spam Email Classification/Index.html#model-1",
     "title": "Spam Emails",
     "section": "2.1 Model 1",
-    "text": "2.1 Model 1\n\n\nsee code\nFinal_Prediction |&gt; \n  conf_mat(truth=truth, \n           estimate = .pred_class) |&gt; \n  autoplot()"
+    "text": "2.1 Model 1\nFinal_Prediction |&gt; \n  conf_mat(truth=truth, \n           estimate = .pred_class) |&gt; \n  autoplot()"
   },
   {
     "objectID": "posts/2023 Spam Email Classification/Index.html#model-2",
     "href": "posts/2023 Spam Email Classification/Index.html#model-2",
     "title": "Spam Emails",
     "section": "2.2 Model 2",
-    "text": "2.2 Model 2\n\n\nsee code\nFinal_Prediction_2 |&gt; \n  conf_mat(truth = truth,\n           estimate = .pred_class) |&gt; \n  autoplot()"
+    "text": "2.2 Model 2\nFinal_Prediction_2 |&gt; \n  conf_mat(truth = truth,\n           estimate = .pred_class) |&gt; \n  autoplot()"
   }
 ]
