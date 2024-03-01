@@ -172,6 +172,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#import-data" id="toc-import-data" class="nav-link" data-scroll-target="#import-data"><span class="header-section-number">1.1</span> IMPORT DATA</a></li>
   <li><a href="#data-splitting" id="toc-data-splitting" class="nav-link" data-scroll-target="#data-splitting"><span class="header-section-number">1.2</span> DATA SPLITTING</a></li>
+  <li><a href="#model-fitting" id="toc-model-fitting" class="nav-link" data-scroll-target="#model-fitting"><span class="header-section-number">1.3</span> MODEL FITTING</a></li>
   </ul></li>
   <li><a href="#rebalancing-outcome" id="toc-rebalancing-outcome" class="nav-link" data-scroll-target="#rebalancing-outcome"><span class="header-section-number">2</span> REBALANCING OUTCOME</a></li>
   </ul>
@@ -282,7 +283,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="data-splitting" class="level2" data-number="1.2">
 <h2 data-number="1.2" class="anchored" data-anchor-id="data-splitting"><span class="header-section-number">1.2</span> DATA SPLITTING</h2>
-<p>Next, we can do some data splitting into a training and testing set, stratified over the outcome variable. The <code>rsample</code> package serves a set of convenient function for the task. The majority of emails (60.56%) are not spam.</p>
+<p>Part of the data splitting involves some decisions about whether to stratify the outcome variable. Especially with an imbalanced dataset, it is important to have sufficient representation of the minority cases without leaking the outcomes in the training process. Next, we can do some data splitting into a training and testing set, stratified over the outcome variable. The <code>rsample</code> package serves a set of convenient function for the task. The majority of emails (60.56%) are not spam.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>see code</summary>
@@ -298,7 +299,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 60.6087 39.3913 </code></pre>
 </div>
 </div>
-<p>We can move on to the model fitting.</p>
+</section>
+<section id="model-fitting" class="level2" data-number="1.3">
+<h2 data-number="1.3" class="anchored" data-anchor-id="model-fitting"><span class="header-section-number">1.3</span> MODEL FITTING</h2>
+<p>To</p>
 <div class="cell">
 <details class="code-fold">
 <summary>see code</summary>
