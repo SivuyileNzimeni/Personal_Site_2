@@ -76,7 +76,7 @@ It appears convoluted. However, it completes a set of sub-setting and applies fu
 
 ## DATA SPLITTING
 
-Next, we can do some data splitting into a training and testing set, stratified over the outcome variable. The `rsample` package serves a set of convenient function for the task. The majority of emails (60.56%) are not spam.
+Part of the data splitting involves some decisions about whether to stratify the outcome variable. Especially with an imbalanced dataset, it is important to have sufficient representation of the minority cases without leaking the outcomes in the training process. Next, we can do some data splitting into a training and testing set, stratified over the outcome variable. The `rsample` package serves a set of convenient function for the task. The majority of emails (60.56%) are not spam.
 
 ```{r Data_Prep}
 #| label: Data Splitting
@@ -88,7 +88,9 @@ Data_Test <- testing(Data_Split)
 100/nrow(Data_Train)*table(Data_Train$yesno)
 ```
 
-We can move on to the model fitting.
+## MODEL FITTING
+
+To
 
 ```{r GLMNET}
 X_Train <- model.matrix(yesno ~.,data =Data_Train)[,-1]
