@@ -264,5 +264,19 @@
     "title": "Spam Emails",
     "section": "",
     "text": "To\n\n\nsee code\nX_Train &lt;- model.matrix(yesno ~.,data =Data_Train)[,-1]\nY_Train &lt;- as.numeric(Data_Train$yesno==\"y\")\n\n\nRanger_Model &lt;- ranger(x=X_Train,\n       y = Y_Train,\n       verbose = TRUE,\n       importance = \"impurity\",\n       splitrule = \"gini\",\n       seed = 2023,\n       classification = TRUE)\n\nRanger_Model$confusion.matrix \n\n\n    predicted\ntrue    0    1\n   0 1974  117\n   1  296 1063\n\n\n\n\nsee code\nElastic_Net &lt;- cv.glmnet(x=X_Train,\n                      y=Y_Train,\n                      alpha =0,\n                      family = \"binomial\",\n                      nfolds = 10,\n                      type.measure = \"class\")\n\n\n\n\nsee code\nTraining_Performance &lt;- assess.glmnet(Elastic_Net,\n              newx=X_Train,\n              newy=Y_Train)\n\nFinal_Model &lt;- glmnet(x=X_Train,\n                      y = Y_Train,\n                      lambda = min(Elastic_Net$lambda),\n                      alpha = 0,\n                      family = \"binomial\",\n                      standardize = FALSE)\n\n\nTraining_Performance &lt;- data.frame(lapply(Training_Performance,unlist))\n\nrownames(Training_Performance) &lt;- NULL\n\nTraining_Performance |&gt; \n  gt() |&gt; \n  tab_header(title = \"2023 Initial ElasticNet Model\",\n             subtitle = \"Training Model Performance\") |&gt; \n  gt_theme_espn()\n\n\n\n\n\n\n\n\n2023 Initial ElasticNet Model\n\n\nTraining Model Performance\n\n\ndeviance\nclass\nauc\nmse\nmae\n\n\n\n\n0.905737\n0.1950725\n0.8945032\n0.2811664\n0.6265235"
+  },
+  {
+    "objectID": "posts/2023 Spam Email Classification/Index.html#model-1",
+    "href": "posts/2023 Spam Email Classification/Index.html#model-1",
+    "title": "Spam Emails",
+    "section": "2.1 Model 1",
+    "text": "2.1 Model 1\n\n\nsee code\nFinal_Prediction |&gt; \n  conf_mat(truth=truth, \n           estimate = .pred_class) |&gt; \n  autoplot()"
+  },
+  {
+    "objectID": "posts/2023 Spam Email Classification/Index.html#model-2",
+    "href": "posts/2023 Spam Email Classification/Index.html#model-2",
+    "title": "Spam Emails",
+    "section": "2.2 Model 2",
+    "text": "2.2 Model 2\n\n\nsee code\nFinal_Prediction_2 |&gt; \n  conf_mat(truth = truth,\n           estimate = .pred_class) |&gt; \n  autoplot()"
   }
 ]

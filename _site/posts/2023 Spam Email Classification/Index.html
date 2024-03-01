@@ -174,7 +174,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#data-splitting" id="toc-data-splitting" class="nav-link" data-scroll-target="#data-splitting"><span class="header-section-number">1.2</span> DATA SPLITTING</a></li>
   <li><a href="#model-fitting" id="toc-model-fitting" class="nav-link" data-scroll-target="#model-fitting"><span class="header-section-number">1.3</span> MODEL FITTING</a></li>
   </ul></li>
-  <li><a href="#rebalancing-outcome" id="toc-rebalancing-outcome" class="nav-link" data-scroll-target="#rebalancing-outcome"><span class="header-section-number">2</span> REBALANCING OUTCOME</a></li>
+  <li><a href="#rebalancing-outcome" id="toc-rebalancing-outcome" class="nav-link" data-scroll-target="#rebalancing-outcome"><span class="header-section-number">2</span> REBALANCING OUTCOME</a>
+  <ul class="collapse">
+  <li><a href="#model-1" id="toc-model-1" class="nav-link" data-scroll-target="#model-1"><span class="header-section-number">2.1</span> Model 1</a></li>
+  <li><a href="#model-2" id="toc-model-2" class="nav-link" data-scroll-target="#model-2"><span class="header-section-number">2.2</span> Model 2</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -937,6 +941,11 @@ true    0    1
   n   y 
 697 454 </code></pre>
 </div>
+</div>
+<p>:::{.panel-tabset}</p>
+<section id="model-1" class="level2" data-number="2.1">
+<h2 data-number="2.1" class="anchored" data-anchor-id="model-1"><span class="header-section-number">2.1</span> Model 1</h2>
+<div class="cell">
 <details class="code-fold">
 <summary>see code</summary>
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a>Final_Prediction <span class="sc">|&gt;</span> </span>
@@ -947,10 +956,15 @@ true    0    1
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Index_files/figure-html/Compare_Performance-1.png" class="img-fluid figure-img" width="2100"></p>
+<p><img src="Index_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid figure-img" width="2100"></p>
 </figure>
 </div>
 </div>
+</div>
+</section>
+<section id="model-2" class="level2" data-number="2.2">
+<h2 data-number="2.2" class="anchored" data-anchor-id="model-2"><span class="header-section-number">2.2</span> Model 2</h2>
+<div class="cell">
 <details class="code-fold">
 <summary>see code</summary>
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a>Final_Prediction_2 <span class="sc">|&gt;</span> </span>
@@ -961,13 +975,14 @@ true    0    1
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="Index_files/figure-html/Compare_Performance-2.png" class="img-fluid figure-img" width="2100"></p>
+<p><img src="Index_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid figure-img" width="2100"></p>
 </figure>
 </div>
 </div>
 </div>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
