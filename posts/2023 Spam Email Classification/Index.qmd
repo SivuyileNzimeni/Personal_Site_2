@@ -226,7 +226,7 @@ Final_Prediction$truth |> table();Final_Prediction_2$truth |> table()
 
 ```
 
-:::{.panel-tabset}
+::: {.panel-tabset}
 
 ## Model 1
 
@@ -235,6 +235,7 @@ Final_Prediction |>
   conf_mat(truth=truth, 
            estimate = .pred_class) |> 
   autoplot()
+  
 ```
 ## Model 2
 ```{.r}
@@ -242,4 +243,7 @@ Final_Prediction_2 |>
   conf_mat(truth = truth,
            estimate = .pred_class) |> 
   autoplot()
+  
 ```
+
+:::
