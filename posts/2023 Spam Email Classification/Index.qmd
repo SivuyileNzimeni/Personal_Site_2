@@ -234,8 +234,8 @@ Final_Prediction$truth |> table();Final_Prediction_2$truth |> table()
 Final_Prediction |> 
   conf_mat(truth=truth, 
            estimate = .pred_class) |> 
-  autoplot()
-  
+  autoplot() |> 
+  print()
 ```
 ## Model 2
 ```{.r}
