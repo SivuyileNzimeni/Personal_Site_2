@@ -66,12 +66,13 @@ Many statistical analysis packages (SPSS,SAS and Stata etc.) utilise labels in t
 ```{r Motor_Vehicle_Trade}
 Motor_Trade <- sm_data(dsid="MOTOR_TRADE")|>data.frame()
 
+
 Variable_Labels <- labelled::var_label(Motor_Trade)
 
 NULL -> names(Variable_Labels)
 Variable_Labels <- unlist(Variable_Labels)
 
-Variable_Labels <- ifelse(is.na(Variable_Labels),"Date",Variable_Labels)
+Variable_Labels <- c("Date",Variable_Labels)
 
 names(Motor_Trade) <- Variable_Labels
 
@@ -92,7 +93,7 @@ Motor_Trade |>
 The dataset contains some missing data from 1998-01-01 to 2005-08-01. Fortunately, there is a pattern in the missing values. Data was not collect for variables listed. From 2005-09-01 onward, StatsSA started collecting more detailed information about motor trade sector.
 
 ```{r Data_Cleaning}
-Motor_Trade <- Motor_Trade[!is.na(Motor_Trade$real_income_from_fuel_sales_rand_millions),] |> 
+Motor_Trade <- Motor_Trade[!is.na(Motor_Trade$income_from_fuel_sales_real_rand_million),] |> 
 #Timeseries Features
     mutate(quarter = lubridate::quarter(date,type= "year.quarter"),
            month = lubridate::month(date,label=TRUE,abbr=FALSE),
@@ -106,8 +107,9 @@ row.names(Motor_Trade) <- NULL
 #| dpi: 320
 #| fig-cap-location: top
 #| fig-cap: 2005 - 2023 Motor Trade Data
+
 Motor_Trade |> 
-  ggplot(aes(date,real_income_from_fuel_sales_rand_millions))+
+  ggplot(aes(date,income_from_fuel_sales_real_rand_millions))+
   geom_line()+
   labs(title = "2005 - 2023 Motor Trade Data",
        subtitle = "Real Income From Fuel Sales Rand Millions",
@@ -124,7 +126,7 @@ Motor_Trade |>
 ```{r Forecast}
 library(forecast)
 
-Fuel_Sales_Ts <- ts(Motor_Trade[,c("real_income_from_fuel_sales_rand_millions")],
+Fuel_Sales_Ts <- ts(Motor_Trade[,c("income_from_fuel_sales_real_rand_millions")],
    start = c(2005,09,01),end = c(2023,02,01),frequency = 12)
 
 ggAcf(Fuel_Sales_Ts,ci=0.95,lag.max=20)
