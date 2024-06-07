@@ -254,6 +254,11 @@ model
 #|echo: true
 #|fig-cap: Fitting a regression Keras model 
 #|include: false
+#|message: false
+#|warning: false
+#|code-summary: Keras Model Fitting
+
+
 k <- 4
 fold_id <- sample(rep(1:k, length.out = nrow(train_data)))
 num_epochs <- 100
