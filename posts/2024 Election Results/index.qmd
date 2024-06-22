@@ -1,0 +1,200 @@
+---
+title: "Voter Turnout"
+format: html
+image: "images/TurnOut_2024.png"
+image-alt: "A map of South Africa illustrating voter turn out across wards"
+lang: "en-GB"
+date: "June 17,2024"
+author: "Sivuyile Nzimeni"
+description: "In this post, we walk-through a hotspot analysis of voter turnout difference between the 2019 - 2024 National and Provincial government elections in South Africa." 
+categories: [spatial data,data cleaning,visualisation]
+fig-dpi: 620
+fig-align: 'center'
+fig-cap-location: 'top'
+code-copy: true
+code-line-numbers: true
+page-layout: 'article'
+cap-location: 'margin'
+number-sections: true
+toc: true
+toc-title: 'CONTENTS'
+execute: 
+  echo: true
+  warning: false
+  message: false
+bibliography: references.bib
+---
+
+```{r Libraries}
+lapply(c("tidyverse","janitor","tidymodels","sf",
+         "spdep","ggthemes","tmap","showtext"),
+       require,
+       character.only = TRUE) |> 
+  suppressWarnings() |> 
+  suppressMessages() |> 
+  invisible()
+
+theme_set(theme_minimal())
+sf_use_s2(FALSE)
+```
+
+# **INTRODUCTION**
+
+While most media coverage as focused on the coalition negotiations[^1]. There is an equally interesting development from the 2024 South African National and Provincial Election results, namely *voter turnout*. In successive elections cycles since the 1999 election cycle, the country recorded a diminishing voter turnout. Turnout peaked in 1999 at 89.3% and the latest cycle registered the lowest voter turn-out yet at 58.6% [@oregan2024]. There are bound to be spatial variations in voting patterns and turnout as well.
+
+[^1]: See [Bloomberg](https://www.bloomberg.com/news/articles/2024-06-12/south-african-elections-coalition-talks-drag-on-as-presidential-vote-looms), [DailyMaverick](https://www.dailymaverick.co.za/article/2024-06-14-government-of-national-unity-will-see-parties-consulted-on-ministerial-appointments-according-to-signed-agreement/) and [Others](https://www.google.com/search?q=South+African+Coalitions&oq=South+African+Coalitions&gs_lcrp=EgZjaHJvbWUyBggAEEUYOTIGCAEQLhhA0gEINTg3M2owajGoAgCwAgA&sourceid=chrome&ie=UTF-8#ip=1)
+
+In this post, we will analyse voter turnout differences at ward-level. This presents several challenges for analysing this dataset. Firstly, voting districts and wards are mutable. In other words, they are subject to change from one election cycle to the next. As a consequence, we will can either account for changes from previous ward demarcations to their current version or impute some other value to measure the differences between the 2019 - 2024 National and Provincial Election.
+
+Secondly, we do not include Out-of-Country votes in the analysis as those votes are not linked to a ward. Out-of-Country do not include Provincial nor Regional ballots. [@theelectoralcourtofsouthafrica2024]'s decision as it relates to honorary consulates, high commissions and consulates role as voting stations. Effectively, the decision introduces a large set of new voting station remarkably different to previous election cycles.
+
+::: callout-tip
+# Voter Turnout
+
+Here, Voter-turn-out is defined as the proportion of people that show up at the polls against those registered to vote.
+:::
+
+```{r Import_Data}
+#| include: false
+
+TurnOut <- readRDS("./Data/SA_Wards_Turn_Out_Difference_1_2024-06-17.rds") |> 
+  clean_names() |> 
+  st_as_sf()
+
+TurnOut <- TurnOut |>
+  na.omit()
+```
+
+## **COLLECTING DATA**
+
+In order to collect the required data, we rely on two main data sources. The [Municipal Demarcation Board](https://www.demarcation.org.za/), they are the body responsible for drawing districts throughout the country. In turn, the [Independent Electoral Commission of South Africa](https://www.elections.org.za/pw/) can determine the appropriate voting districts (voting station boundaries). The IEC is unambiguous about the independence of the voting districts from the work of the Municipal Demarcation Board. Voting districts are logistically sound regions aimed at minimising voter inconvenience and limiting voter fraud @aboutvo.
+
+Unlike previous years, sourcing voting districts and voting station coordinates has proved markedly more difficult in 2024. Fortunately, SANEF's election dashboard @election2024 has a handy data export feature. The voting station location data can be join to their respective wards, the voting station results are aggregated to ward level for the 2019 and 2024 elections.
+
+There are a few sanity checks in the data preprocessing, such as excluding newly demarcated wards, since they don't have a 2019 baseline. Voting Stations with turnout greater 100% are removed. This pattern is glaring particularly at voting stations that were in temporary structures such as Tents. We do not include data from Provincial and Regional ballots since we aren't necessarily interested in voting patterns per say but rather whether voters showed up.
+
+The final dataset contains an `sf` object with the aggregate turnout results across wards in both the 2019 and the 2024 National and Provincial Elections. Our variable of interest is the turnout change from 2019 - 2024.
+
+# **EXPLORATORY ANALYSIS**
+
+::: {#fig-turnout}
+```{r}
+TurnOut|>
+  ggplot()+
+  geom_sf(aes(fill = turnout_diff),
+          color = "black")+
+  scale_fill_viridis_c(breaks = c(-40,-20,0,20,40))+
+  labs(subtitle = "2019 - 2024 Turnout Difference (%)",
+       fill = "Turnout Difference(%)")+
+  theme_void()+
+  theme(
+    text = element_text(family = "IBM Plex Sans"),
+    plot.title = element_text(face = "bold",
+                              hjust = 0.5),
+    plot.subtitle = element_text(face = "italic",hjust =0.5),
+    legend.position = "bottom"
+  )
+```
+
+2024 National and Provincial Election Results
+:::
+
+@fig-turnout illustrates the turn out differences across wards. There are at least 4454 wards, as a result, insights are lost in the noise. For example, the metropolitan areas are indistinguishable from the rest of the country, their differences are hidden by ward boundaries. It is possible to 'zoom' into these areas of interest.
+
+::: {#fig-cityturnout layout-ncol="5"}
+
+![Cape Town](images/Cape-Town.png){#fig-cpt} 
+
+![Johannesburg](images/Johannesburg.png){#fig-jhb}
+
+![Gqeberha](images/Gqeberha.png){#fig-pe}
+
+![Tshwane](images/Pretoria.png){#fig-pta}
+
+![Durban](images/Durban.png){#fig-dbn}
+
+2019 - 2024 Metropolitan Municipality Turnout Differences (%)
+:::
+
+@fig-cityturnout illustrates differences in turnout across five metropolitan municipalities. This approach provides a more granular view of outcomes while focusing on regions with higher population densities.
+
+```{r Contiguity_Weights}
+#| include: false
+#| message: false
+
+Spatial_NB <- poly2nb(TurnOut,
+        queen = TRUE,
+        snap = 1e-5)
+
+Spatial_NB
+
+Spatial_Listw <- nb2listw(Spatial_NB,zero.policy = TRUE,style = "B")
+
+Spatial_Lag_List <- lag.listw(Spatial_Listw,
+                              TurnOut$turnout_diff)
+```
+
+```{r}
+C_Local <- localC_perm(TurnOut$turnout_diff,
+            Spatial_Listw)
+
+C_Local_Classy <- hotspot(C_Local,
+        cutoff = 0.05,
+        Prname = "Pr(z != E(Ci)) Sim",
+        p.adjust = "none")
+
+
+TurnOut$hotspot_classification <- C_Local_Classy
+TurnOut$hotspot_classification |> table()
+
+TurnOut <- TurnOut |> 
+  mutate(hotspot_classification = factor(hotspot_classification,
+                                         labels = c("High-High",
+                                                    "Low-Low",
+                                                    "Other Positive",
+                                                    "Negatve"),
+                                         ordered = TRUE))
+
+TurnOut|> 
+  ggplot()+
+  geom_sf(aes(fill = hotspot_classification),
+              color = "black")+
+  scale_fill_manual(values = 
+    c("High-High" = "#C69317",
+      "Low-Low" = "#A71930",
+      "Other Positive" = "#490E6F",
+      "Negative" = "white")
+  )+
+  theme_void()+
+    theme(
+      text = element_text("IBM Plex Sans"),
+      plot.title = element_text(face = "bold",hjust = 0.5),
+      plot.subtitle = element_text(face = "italic",hjust = 0.5),
+      legend.position = "bottom"
+    )
+
+```
+
+```{r}
+library(rdeck)
+library(mapdeck)
+library(viridisLite)
+
+
+rdeck(map_style = mapbox_satellite_streets(),
+      initial_view_state = view_state(
+        center = c(24.0850297,-29.6978701),
+        zoom = 5))|>
+  add_polygon_layer(
+    data = TurnOut,
+    pickable = TRUE,
+    visible = TRUE,
+    get_polygon = geometry,
+    opacity = 0.6,
+    get_fill_color = rdeck::scale_color_category(
+      col = hotspot_classification,
+      palette = cividis(n = table(TurnOut$hotspot_classification)|>length(),
+      direction = -1)
+      )
+    )
+```

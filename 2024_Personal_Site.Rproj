@@ -11,3 +11,7 @@ Encoding: UTF-8
 
 RnwWeave: Sweave
 LaTeX: pdfLaTeX
+
+PythonType: system
+PythonVersion: 3.11.0
+PythonPath: C:/Users/Sivuyile/AppData/Local/Programs/Python/Python311/python.exe
