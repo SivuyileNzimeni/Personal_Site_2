@@ -1,12 +1,12 @@
 ---
-title: "Voter Turnout"
+title: "2024 Voter Turnout: Hotspots"
 format: html
 image: "images/TurnOut_2024.png"
 image-alt: "A map of South Africa illustrating voter turn out across wards"
 lang: "en-GB"
 date: "June 17,2024"
 author: "Sivuyile Nzimeni"
-description: "In this post, we walk-through a hotspot analysis of voter turnout difference between the 2019 - 2024 National and Provincial government elections in South Africa." 
+description: "In this post, we walk-through a hotspot analysis of voter turnout difference between the 2019 - 2024 National and Provincial elections in South Africa." 
 categories: [spatial data,data cleaning,visualisation]
 fig-dpi: 620
 fig-align: 'center'
@@ -51,7 +51,7 @@ Secondly, we do not include Out-of-Country votes in the analysis as those votes 
 ::: callout-tip
 # Voter Turnout
 
-Here, Voter-turn-out is defined as the proportion of people that show up at the polls against those registered to vote.
+Voter turnout is defined as a proportion $voter turnout = (100/registered population)*total votes$. It is applied to both election years and the turnout difference is effectively $voter turnout(2024) - voterturnout(2021)$.
 :::
 
 ```{r Import_Data}
@@ -102,8 +102,7 @@ TurnOut|>
 @fig-turnout illustrates the turn out differences across wards. There are at least 4454 wards, as a result, insights are lost in the noise. For example, the metropolitan areas are indistinguishable from the rest of the country, their differences are hidden by ward boundaries. It is possible to 'zoom' into these areas of interest.
 
 ::: {#fig-cityturnout layout-ncol="5"}
-
-![Cape Town](images/Cape-Town.png){#fig-cpt} 
+![Cape Town](images/Cape-Town.png){#fig-cpt}
 
 ![Johannesburg](images/Johannesburg.png){#fig-jhb}
 
@@ -116,17 +115,18 @@ TurnOut|>
 2019 - 2024 Metropolitan Municipality Turnout Differences (%)
 :::
 
-@fig-cityturnout illustrates differences in turnout across five metropolitan municipalities. This approach provides a more granular view of outcomes while focusing on regions with higher population densities.
+@fig-cityturnout illustrates differences in turnout across five metropolitan municipalities. This approach provides a more granular view of outcomes while focusing on regions with higher population densities. Some distinct patterns emerge at a ward-level and metropolitan-level. One approach to quantifying these patterns is to do hotspot analysis. Effectively, we can rely on a number of statistics to assess spatial autocorrelation. @applied2021, pp. 149-211 provides a succinct summary of the spatial autocorrelation, global and local statistics and their visualisation.
+
+## **CREATING HOTSPOTS**
+
+In the code below, we complete a couple of tasks, first we create neighbours list from the polygons of ward districts using the `poly2nb` . Next, the neighbours lists are converted to spatial weights (`nb2listw`) and lagged (`lag.listw`).
 
 ```{r Contiguity_Weights}
 #| include: false
 #| message: false
 
 Spatial_NB <- poly2nb(TurnOut,
-        queen = TRUE,
-        snap = 1e-5)
-
-Spatial_NB
+        queen = TRUE)
 
 Spatial_Listw <- nb2listw(Spatial_NB,zero.policy = TRUE,style = "B")
 
@@ -134,37 +134,31 @@ Spatial_Lag_List <- lag.listw(Spatial_Listw,
                               TurnOut$turnout_diff)
 ```
 
-```{r}
-C_Local <- localC_perm(TurnOut$turnout_diff,
-            Spatial_Listw)
+The lagged spatial weights are used as input in the estimation of a local spatial statistic (Getis-Ord G) which will help us identify clusters of high or low voter turnout. The `hotspot` function helps us classify whether the patterns observed are of interest. Finally, we can visualise results.
 
-C_Local_Classy <- hotspot(C_Local,
+::: {#fig-hotspots}
+```{r}
+G_Local <- localG_perm(TurnOut$turnout_diff,
+                  Spatial_Listw)
+
+G_Local_Classy <- hotspot(G_Local,
+        Prname = "Pr(z != E(Gi))",
         cutoff = 0.05,
-        Prname = "Pr(z != E(Ci)) Sim",
         p.adjust = "none")
 
+G_Local_Classy |> table()
 
-TurnOut$hotspot_classification <- C_Local_Classy
-TurnOut$hotspot_classification |> table()
+TurnOut$hotspot_classification <- G_Local_Classy
 
-TurnOut <- TurnOut |> 
-  mutate(hotspot_classification = factor(hotspot_classification,
-                                         labels = c("High-High",
-                                                    "Low-Low",
-                                                    "Other Positive",
-                                                    "Negatve"),
-                                         ordered = TRUE))
-
-TurnOut|> 
+TurnOut |> 
   ggplot()+
-  geom_sf(aes(fill = hotspot_classification),
-              color = "black")+
-  scale_fill_manual(values = 
-    c("High-High" = "#C69317",
-      "Low-Low" = "#A71930",
-      "Other Positive" = "#490E6F",
-      "Negative" = "white")
+  geom_sf(aes(fill =hotspot_classification),
+          color = "black")+
+  scale_fill_manual(
+    values = c("High" = "#0f204b",
+               "Low" = "#A71930")
   )+
+  labs(fill = "Hotspot Classification")+
   theme_void()+
     theme(
       text = element_text("IBM Plex Sans"),
@@ -172,21 +166,38 @@ TurnOut|>
       plot.subtitle = element_text(face = "italic",hjust = 0.5),
       legend.position = "bottom"
     )
-
 ```
 
+2019 - 2024 Voter Turnout Hotspots
+:::
+
+@fig-hotspots illustrates a map of the hotspots throughout South Africa. However, we have the same flaw observed in with @fig-turnout, the hotspots are sparsely distributed throughout the country. As such, it can be difficult to extract meaningful information out of the visualisation. In addition, the map as-is does not contain any additional information such as cities,built-environment, roads etc.
+
+Accordingly, we enhance the visualisation using the `rdeck` package @north2024 which offers an interaction to the [mapbox](https://www.mapbox.com) visualisation capabilities. The code below is adapted from @walker2024 .
+
+::: callout-warning
+# MAPBOX ACCESS TOKEN
+
+The mapbox service requires an account and access token. It offers a generous free-tier.
+:::
+
+## **INTERACTIVE VISUALISATION**
+
+::: {#fig-interactiveturnout}
 ```{r}
 library(rdeck)
 library(mapdeck)
 library(viridisLite)
 
+TurnOut_Subset <- TurnOut |> 
+  filter(!is.na(hotspot_classification))
 
 rdeck(map_style = mapbox_satellite_streets(),
       initial_view_state = view_state(
         center = c(24.0850297,-29.6978701),
         zoom = 5))|>
   add_polygon_layer(
-    data = TurnOut,
+    data = TurnOut_Subset,
     pickable = TRUE,
     visible = TRUE,
     get_polygon = geometry,
@@ -198,3 +209,12 @@ rdeck(map_style = mapbox_satellite_streets(),
       )
     )
 ```
+
+Interactive Hotspots
+:::
+
+# CONCLUSION
+
+Our primary aim was to assess turnout differences from the 2019 - 2024 National and Provincial Elections in South Africa. This involved some data preprocessing, merging and aggregation of turnout for each election cycle. After some initial visualisations, we relied on the local Getis-Ord G statistic in order to find clusters of hotspots. The final visualisation is interactive including a satellite image of South Africa for added context.
+
+This walk-through is fairly superficial, we do not include covariates to measure differences in turnout, nor do we consider events that may have occurred in those regions. @rule2018, @fransman2024 and others have considered a broader spectrum of variables that could explain voting patterns.
