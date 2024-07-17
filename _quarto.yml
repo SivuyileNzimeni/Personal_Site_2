@@ -3,6 +3,7 @@ project:
   output-dir: _site
   preview: 
     browser: true
+    image: true
 
 website:
   twitter-card:
